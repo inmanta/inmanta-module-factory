@@ -18,6 +18,8 @@ If an entity has as path: `["test", "a", "b"]` and as name: `C`, the entity will
 ## Example
 
 ```python
+from pathlib import Path
+
 from inmanta_module_factory.inmanta.attribute import Attribute, InmantaPrimitiveList
 from inmanta_module_factory.inmanta.entity import Entity
 from inmanta_module_factory.inmanta.entity_relation import EntityRelation
