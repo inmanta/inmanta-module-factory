@@ -36,9 +36,8 @@ pipeline {
                   sh '''
                     rm -rf ${WORKSPACE}/env
                     python3 -m venv ${WORKSPACE}/env
-                    ${WORKSPACE}/env/bin/python3 -m pip install -U pip
-                    ${WORKSPACE}/env/bin/python3 -m pip install -U poetry
-                    ${WORKSPACE}/env/bin/python3 -m poetry install
+                    . ${WORKSPACE}/env/bin/activate
+                    make install
                   '''
                 }
               }
