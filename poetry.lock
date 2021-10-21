@@ -893,7 +893,7 @@ testing = ["pytest (>=4.6)", "pytest-checkdocs (>=2.4)", "pytest-flake8", "pytes
 [metadata]
 lock-version = "1.1"
 python-versions = ">=3.6.1,<4.0"
-content-hash = "42ea969f094f48173f64199b8f91564dc22defb4c540d7476a7baf12cb864fe1"
+content-hash = "e5ce7830a7348d466b2d3f3973cb400abbf479bb2e6a15c738a2a9caaf1df832"
 
 [metadata.files]
 appdirs = [
