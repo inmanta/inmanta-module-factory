@@ -38,7 +38,7 @@ pipeline {
                     python3 -m venv ${WORKSPACE}/env
                     ${WORKSPACE}/env/bin/python3 -m pip install -U pip
                     ${WORKSPACE}/env/bin/python3 -m pip install -U poetry
-                    ${env.WORKSPACE}/env/bin/python3 -m poetry install
+                    ${WORKSPACE}/env/bin/python3 -m poetry install
                   '''
                 }
               }
