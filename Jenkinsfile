@@ -49,7 +49,8 @@ pipeline {
           steps {
             dir(env.REPO_NAME) {
               sh '''
-                ${WORKSPACE}/env/bin/python3 -m pytest \
+                . ${WORKSPACE}/env/bin/activate
+                pytest \
                   --junitxml=junit.xml \
                   --log-cli-level DEBUG \
                   --basetemp=${WORKSPACE}/tmp \
@@ -57,6 +58,7 @@ pipeline {
                   tests
               '''
             }
+            junit "${env.REPO_NAME}/junit.xml"
           }
         }
 
@@ -64,6 +66,7 @@ pipeline {
           steps {
             dir(env.REPO_NAME) {
               sh'''
+                . ${WORKSPACE}/env/bin/activate
                 make pep8
               '''
             }
@@ -74,6 +77,7 @@ pipeline {
           steps {
             dir(env.REPO_NAME) {
               sh'''
+                . ${WORKSPACE}/env/bin/activate
                 make mypy
               '''
             }
@@ -112,7 +116,6 @@ pipeline {
 
     post {
       always {
-        junit "${env.REPO_NAME}/junit.xml"
         deleteDir()
       }
     }
