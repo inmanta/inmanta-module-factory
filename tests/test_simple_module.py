@@ -28,9 +28,13 @@ from inmanta_module_factory.inmanta.implement import Implement
 from inmanta_module_factory.inmanta.implementation import Implementation
 from inmanta_module_factory.inmanta.index import Index
 from inmanta_module_factory.inmanta.module import Module
+from inmanta_module_factory.inmanta.plugin import Plugin, PluginArgument
 
 
 def test_empty_module(project: Project) -> None:
+    """
+    This simple test creates an empty module and validates that it is a valid inmanta module
+    """
     module = Module(name="test")
     module_builder = InmantaModuleBuilder(module, Path(project._test_project_dir) / "libs")
 
@@ -40,6 +44,10 @@ def test_empty_module(project: Project) -> None:
 
 
 def test_basic_module(project: Project) -> None:
+    """
+    This simple test creates a more complex module, with entities, implementations, index, etc.
+    It then validates that the modules can be compiled and that its entities can be used.
+    """
     module = Module(name="test")
     module_builder = InmantaModuleBuilder(module, Path(project._test_project_dir) / "libs")
 
@@ -119,3 +127,42 @@ def test_basic_module(project: Project) -> None:
 
     assert "a" in (project.get_stdout() or "")
     assert "b" in (project.get_stdout() or "")
+
+
+def test_plugin(project: Project) -> None:
+    """
+    This simple test creates a more complex module, with entities, implementations, index, etc.
+    It then validates that the modules can be compiled and that its entities can be used.
+    """
+    module = Module(name="test")
+    module_builder = InmantaModuleBuilder(module, Path(project._test_project_dir) / "libs")
+
+    plugin = Plugin(
+        name="hello",
+        arguments=[
+            PluginArgument(
+                name="world",
+                inmanta_type="string",
+            ),
+        ],
+        return_type=PluginArgument(
+            name="",
+            inmanta_type="string",
+        ),
+        content="""return f"hello {world}" """,
+    )
+
+    module_builder.add_plugin(plugin)
+
+    module_builder.generate_module()
+
+    project.compile(
+        """
+            import test
+
+            std::print(test::hello("universe"))
+        """,
+        no_dedent=False,
+    )
+
+    assert "hello universe" in (project.get_stdout() or "")
