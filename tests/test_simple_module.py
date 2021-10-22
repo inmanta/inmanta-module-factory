@@ -36,9 +36,9 @@ def test_empty_module(project: Project) -> None:
     This simple test creates an empty module and validates that it is a valid inmanta module
     """
     module = Module(name="test")
-    module_builder = InmantaModuleBuilder(module, Path(project._test_project_dir) / "libs")
+    module_builder = InmantaModuleBuilder(module)
 
-    module_builder.generate_module()
+    module_builder.generate_module(Path(project._test_project_dir) / "libs")
 
     project.compile("import test")
 
@@ -49,7 +49,7 @@ def test_basic_module(project: Project) -> None:
     It then validates that the modules can be compiled and that its entities can be used.
     """
     module = Module(name="test")
-    module_builder = InmantaModuleBuilder(module, Path(project._test_project_dir) / "libs")
+    module_builder = InmantaModuleBuilder(module)
 
     entity = Entity(
         "Test",
@@ -110,7 +110,7 @@ def test_basic_module(project: Project) -> None:
     module_builder.add_module_element(index)
     module_builder.add_module_element(relation)
 
-    module_builder.generate_module()
+    module_builder.generate_module(Path(project._test_project_dir) / "libs")
 
     project.compile(
         """
@@ -135,7 +135,7 @@ def test_plugin(project: Project) -> None:
     It then validates that the modules can be compiled and that its entities can be used.
     """
     module = Module(name="test")
-    module_builder = InmantaModuleBuilder(module, Path(project._test_project_dir) / "libs")
+    module_builder = InmantaModuleBuilder(module)
 
     plugin = Plugin(
         name="hello",
@@ -154,7 +154,7 @@ def test_plugin(project: Project) -> None:
 
     module_builder.add_plugin(plugin)
 
-    module_builder.generate_module()
+    module_builder.generate_module(Path(project._test_project_dir) / "libs")
 
     project.compile(
         """

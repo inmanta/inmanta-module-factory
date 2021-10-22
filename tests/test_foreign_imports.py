@@ -34,7 +34,7 @@ def test_foreign_implementation(project: Project) -> None:
     It then tries to compile it and use of of these entities.
     """
     module = Module(name="test")
-    module_builder = InmantaModuleBuilder(module, Path(project._test_project_dir) / "libs")
+    module_builder = InmantaModuleBuilder(module)
 
     entity = Entity(
         "Test",
@@ -63,7 +63,7 @@ def test_foreign_implementation(project: Project) -> None:
     module_builder.add_module_element(entity)
     module_builder.add_module_element(implement)
 
-    module_builder.generate_module()
+    module_builder.generate_module(Path(project._test_project_dir) / "libs")
 
     project.compile(
         """

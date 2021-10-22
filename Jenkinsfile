@@ -1,4 +1,3 @@
-/* groovylint-disable GStringExpressionWithinString, NestedBlockDepth */
 pipeline {
     agent any
     triggers {
@@ -23,24 +22,12 @@ pipeline {
           steps {
             deleteDir()
             dir(env.REPO_NAME) {
-              checkout scm
-              withCredentials(
-                [
-                  string(
-                    credentialsId: 'fff7ef7e-cb20-4fb2-a93b-c5139463c6bf',
-                    variable: 'GITHUB_TOKEN'
-                  )
-                ]
-              ) {
-                script {
-                  sh '''
-                    rm -rf ${WORKSPACE}/env
-                    python3 -m venv ${WORKSPACE}/env
-                    . ${WORKSPACE}/env/bin/activate
-                    make install
-                  '''
-                }
-              }
+              sh '''
+                rm -rf ${WORKSPACE}/env
+                python3 -m venv ${WORKSPACE}/env
+                . ${WORKSPACE}/env/bin/activate
+                make install
+              '''
             }
           }
         }
@@ -103,7 +90,7 @@ pipeline {
                   ${WORKSPACE}/env/bin/devpi login ${DEVPI_USER} --password=${DEVPI_PASS}
                   rm -f dist/*
 
-                  ${WORKSPACE}/env/bin/python3 setup.py egg_info -Db ".dev$(date +'%Y%m%d%H%M%S' --utc)" sdist
+                  ${WORKSPACE}/env/bin/python3 -m pep517.build --source .
 
                   ${WORKSPACE}/env/bin/devpi upload dist/*.dev*
                   ${WORKSPACE}/env/bin/devpi logoff

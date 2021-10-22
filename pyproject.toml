@@ -13,10 +13,8 @@ python = ">=3.6.1,<4.0"
 PyYAML = "^5.3"
 
 [tool.poetry.dev-dependencies]
-mypy = "*"
 inmanta-dev-dependencies = {extras = ["module"], version = "^1.59.0"}
 types-PyYAML = "^5.4.12"
-pytest = "^6.2.5"
 
 [tool.black]
 line-length = 128
@@ -37,6 +35,44 @@ exclude = '''
 )/
 '''
 
+[tool.isort]
+multi_line_output = 3
+include_trailing_comma = true
+force_grid_wrap = 0
+use_parentheses = true
+# Black splits up import statements that are too long
+# Setting isorts line_length to 88 (blacks default) so they do not collide
+line_length = 88
+
+[tool.flake8]
+# Flake8 doesn't support loading the config from pyproject.toml, so this will be read by the makefile
+# and the corresponding setup.cfg file will be created.
+
+# H101 Include your name with TODOs as in # TODO(yourname). This makes it easier to find out who the author of the comment was.
+# H302 Do not import objects, only modules DEPRICATED
+# H404 Multi line docstrings should start without a leading new line.
+# H405 multi line docstring summary not separated with an empty line
+# H301 Do not import more than one module per line (*)
+# H306 Alphabetically order your imports by the full module path.
+# E203 whitespace before ':' " on list slice.
+# E266 too many leading ‘#’ for block comment
+# E252 missing whitespace around parameter equals
+# F722 syntax error in forward annotation
+# W503 line break before binary operator
+# Note: E203 whitespaces and the slice operator. black and flake disagree
+# Note: F722 because many inmanta types are seen as forward declarations
+ignore = "H405,H404,H302,H306,H301,H101,E252,E203,F722,W503"
+
+# These inmanta primitive types will throw F821 in annotations
+# see: http://flake8.pycqa.org/en/latest/user/options.html#cmdoption-flake8-builtins
+builtins = "string,number,bool"
+max-line-length = 128
+exclude = "**/.env,venv"
+copyright-check = "True"
+copyright-author = "Inmanta"
+# C errors are not selected by default, so add them to your selection
+select = "E,F,W,C,BLK,I"
+
 [build-system]
-requires = ["poetry>=0.12"]
-build-backend = "poetry.masonry.api"
+requires = ["poetry-core>=1.0.0"]
+build-backend = "poetry.core.masonry.api"

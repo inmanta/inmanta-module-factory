@@ -2,6 +2,7 @@
 .DEFAULT_GOAL := all
 isort = isort src/inmanta_module_factory tests
 black = black src/inmanta_module_factory tests
+setup_flake8 = cat pyproject.toml | python -c 'import toml; import configparser; import sys; config = configparser.ConfigParser(); config["flake8"] = toml.load(sys.stdin)["tool"]["flake8"]; config.write(sys.stdout)' > setup.cfg
 flake8 = flake8 src/inmanta_module_factory tests
 
 
@@ -15,10 +16,12 @@ install:
 format:
 	$(isort)
 	$(black)
+	$(setup_flake8)
 	$(flake8)
 
 .PHONY: pep8
 pep8:
+	$(setup_flake8)
 	$(flake8)
 
 # Build up folders structure corresponding to inmanta loader structure, so mypy knows what goes where.
@@ -26,12 +29,11 @@ RUN_MYPY_PLUGINS=MYPYPATH=src python -m mypy --html-report mypy/out/inmanta_modu
 RUN_MYPY_TESTS=MYPYPATH=tests python -m mypy --html-report mypy/out/tests tests
 
 mypy-src:
-	@ echo "Running mypy on the package source\n..."
-	@ $(SET_UP_MYPY_PLUGINS)
+	@ echo -e "Running mypy on the package source\n..."
 	@ $(RUN_MYPY_PLUGINS)
 
 mypy-tests:
-	@ echo "Running mypy on the package tests\n..."
+	@ echo -e "Running mypy on the package tests\n..."
 	@ $(RUN_MYPY_TESTS)
 
 .PHONY: mypy

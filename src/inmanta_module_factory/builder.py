@@ -35,9 +35,8 @@ LOGGER = logging.getLogger(__name__)
 
 
 class InmantaModuleBuilder:
-    def __init__(self, module: Module, build_location: Path) -> None:
+    def __init__(self, module: Module) -> None:
         self._module = module
-        self._build_location = build_location
         self._model_files: Dict[str, List[ModuleElement]] = dict()
         self._plugins: List[Plugin] = list()
 
@@ -61,6 +60,7 @@ class InmantaModuleBuilder:
 
     def generate_model_file(
         self,
+        build_location: Path,
         file_key: str,
         force: bool = False,
         copyright_header_template: Optional[str] = None,
@@ -77,7 +77,7 @@ class InmantaModuleBuilder:
             LOGGER.warning(f"No module elements found for {file_key}, skipping.")
             return None
 
-        file_path = self._build_location / Path(
+        file_path = build_location / Path(
             self._module.name,
             "model",
             "/".join(module_elements[0].path[1:]),
@@ -108,10 +108,12 @@ class InmantaModuleBuilder:
 
         return file_path
 
-    def generate_plugin_file(self, force: bool = False, copyright_header_template: Optional[str] = None) -> Path:
+    def generate_plugin_file(
+        self, build_location: Path, force: bool = False, copyright_header_template: Optional[str] = None
+    ) -> Path:
         self._plugins.sort(key=lambda plugin: plugin.name)
 
-        file_path = self._build_location / Path(self._module.name, "plugins/__init__.py")
+        file_path = build_location / Path(self._module.name, "plugins/__init__.py")
         file_path.parent.mkdir(parents=True, exist_ok=True)
         if file_path.exists():
             LOGGER.warning(f"Generating a file where a file already exists: {str(file_path)}")
@@ -137,8 +139,10 @@ class InmantaModuleBuilder:
 
         return file_path
 
-    def generate_model_test(self, force: bool = False, copyright_header_template: Optional[str] = None) -> Path:
-        file_path = self._build_location / Path(self._module.name, "tests/test_basics.py")
+    def generate_model_test(
+        self, build_location: Path, force: bool = False, copyright_header_template: Optional[str] = None
+    ) -> Path:
+        file_path = build_location / Path(self._module.name, "tests/test_basics.py")
         file_path.parent.mkdir(parents=True, exist_ok=True)
         if file_path.exists():
             LOGGER.warning(f"Generating a file where a file already exists: {str(file_path)}")
@@ -163,8 +167,10 @@ class InmantaModuleBuilder:
 
         return file_path
 
-    def generate_module(self, force: bool = False, copyright_header_template: Optional[str] = None) -> None:
-        module_path = self._build_location / Path(self._module.name)
+    def generate_module(
+        self, build_location: Path, force: bool = False, copyright_header_template: Optional[str] = None
+    ) -> None:
+        module_path = build_location / Path(self._module.name)
         if module_path.exists():
             if not force:
                 raise RuntimeError(f"Generating this module would have overwritten the following path: {str(module_path)}")
@@ -173,7 +179,7 @@ class InmantaModuleBuilder:
 
         module_path.mkdir(parents=True)
 
-        self.generate_plugin_file(force, copyright_header_template)
+        self.generate_plugin_file(build_location, force, copyright_header_template)
 
         for file_key in list(self._model_files.keys()):
             if file_key == self._module.name:
@@ -187,9 +193,9 @@ class InmantaModuleBuilder:
                     self._model_files[parent_path] = [DummyModuleElement(parent_path.split("::"))]
 
         for file_key in self._model_files.keys():
-            self.generate_model_file(file_key, force, copyright_header_template)
+            self.generate_model_file(build_location, file_key, force, copyright_header_template)
 
-        self.generate_model_test(force, copyright_header_template)
+        self.generate_model_test(build_location, force, copyright_header_template)
 
         file_path = module_path / Path("module.yml")
         file_path.touch()
