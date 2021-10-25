@@ -20,7 +20,6 @@ pipeline {
     stages {
         stage('Setup') {
           steps {
-            deleteDir()
             dir(env.REPO_NAME) {
               sh '''
                 rm -rf ${WORKSPACE}/env
