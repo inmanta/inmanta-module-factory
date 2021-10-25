@@ -402,7 +402,7 @@ pytest-inmanta-extensions = ["pytest-inmanta-extensions (>=5.1.1.0.dev,<5.2.0)"]
 
 [[package]]
 name = "inmanta-dev-dependencies"
-version = "1.61.0"
+version = "1.62.0"
 description = "Package collecting all common dev dependencies of inmanta modules and extensions to synchronize dependency versions."
 category = "dev"
 optional = false
@@ -1096,7 +1096,7 @@ inmanta-core = [
     {file = "inmanta-core-5.1.1.tar.gz", hash = "sha256:afa05fc6d3445081a7c9f85cc10af631bc574e40f64f8372a760e91128e88b89"},
 ]
 inmanta-dev-dependencies = [
-    {file = "inmanta-dev-dependencies-1.61.0.tar.gz", hash = "sha256:b7b7dc49ec4dcc58677c8861f3b3809e1780cef77643741219f96691bd1a3df9"},
+    {file = "inmanta-dev-dependencies-1.62.0.tar.gz", hash = "sha256:f5a10240241a749d371262ef2adf56d8279a667077f3ef4896d9c4b7a4938fa7"},
 ]
 isort = [
     {file = "isort-5.8.0-py3-none-any.whl", hash = "sha256:2bb1680aad211e3c9944dbce1d4ba09a989f04e238296c87fe2139faa26d655d"},

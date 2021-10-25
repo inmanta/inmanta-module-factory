@@ -78,9 +78,9 @@ pipeline {
                 ${WORKSPACE}/env/bin/devpi login ${DEVPI_USER} --password=${DEVPI_PASS}
                 rm -f dist/*
 
-                ${WORKSPACE}/env/bin/python3 -m pep517.build --source .
+                ${WORKSPACE}/env/bin/python3 -m poetry build
 
-                ${WORKSPACE}/env/bin/devpi upload dist/*.dev*
+                ${WORKSPACE}/env/bin/devpi upload dist/*
                 ${WORKSPACE}/env/bin/devpi logoff
                 '''
             }
