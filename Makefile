@@ -20,11 +20,6 @@ format:
 pep8:
 	$(flake8)
 
-echo:
-	which sh
-	which echo
-	echo --version
-
 # Build up folders structure corresponding to inmanta loader structure, so mypy knows what goes where.
 RUN_MYPY_PLUGINS=MYPYPATH=src python -m mypy --html-report mypy/out/inmanta_module_factory -p inmanta_module_factory
 RUN_MYPY_TESTS=MYPYPATH=tests python -m mypy --html-report mypy/out/tests tests
@@ -59,7 +54,6 @@ LFMT_NEWLINE=%c'\\012'
 # compare mypy output with baseline file, show newly introduced and resolved type errors
 mypy-diff:
 	@ # run mypy and temporarily save result
-	@ $(SET_UP_MYPY_PLUGINS)
 	@ $(RUN_MYPY_PLUGINS) > $(MYPY_TMP_FILE) || true
 	@ $(RUN_MYPY_TESTS) >> $(MYPY_TMP_FILE) || true
 	@ # prepare baseline for diff and temporarily save result
@@ -77,6 +71,5 @@ mypy-diff:
 
 # save mypy output to baseline file
 mypy-save:
-	$(SET_UP_MYPY_PLUGINS)
 	$(RUN_MYPY_PLUGINS) > $(MYPY_BASELINE_FILE) || true
 	$(RUN_MYPY_TESTS) >> $(MYPY_BASELINE_FILE) || true
