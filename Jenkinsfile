@@ -38,7 +38,7 @@ pipeline {
                 -s -vvv \
                 tests
             '''
-            junit "${env.REPO_NAME}/junit.xml"
+            junit "junit.xml"
           }
         }
 
