@@ -95,6 +95,8 @@ module_builder.generate_module(
 **Tips**  The path attribute that most of the previously mentioned classes take in their constructor can be used to specify where in the module the element should be located.  The path is a list of strings.  
 If an entity has as path: `["test", "a", "b"]` and as name: `C`, the entity will will be placed in the module `test` in the file `model/a/b/_init.cf` (starting from the root of the module).  To import it, you will then use the following statement: `import test::a::b`, and to use it: `test::a::b::C(...)`.
 
+In the example above, the entity named `Test` is at the root of its module, so the path only contains the module name (`test`).  It can be used in any project by using its full path, `test::Test`.
+
 ## Recommended usage
 Even though this package can be used standalone to generate modules, it is very verbose and it probably takes more time to generate a module by describing all its components in python with this library than directly writing it in Inmanta language.  This module is meant to be used with any other tool to generate modules automatically (from some schema input, that logic has to be handled by the parser using this package).
 
