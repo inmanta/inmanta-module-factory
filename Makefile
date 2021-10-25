@@ -2,8 +2,11 @@
 .DEFAULT_GOAL := all
 isort = isort src/inmanta_module_factory tests
 black = black src/inmanta_module_factory tests
-setup_flake8 = cat pyproject.toml | python -c 'import toml; import configparser; import sys; config = configparser.ConfigParser(); config["flake8"] = toml.load(sys.stdin)["tool"]["flake8"]; config.write(sys.stdout)' > setup.cfg
 flake8 = flake8 src/inmanta_module_factory tests
+
+# This allows to get rid of the setup.cfg file
+toml_to_cfg = python -c 'import toml; import configparser; import sys; config = configparser.ConfigParser(); config["flake8"] = toml.load(sys.stdin)["tool"]["flake8"]; config.write(sys.stdout)'
+setup_flake8 = cat pyproject.toml | $(toml_to_cfg) > setup.cfg
 
 
 .PHONY: install
@@ -23,6 +26,11 @@ format:
 pep8:
 	$(setup_flake8)
 	$(flake8)
+
+echo:
+	which sh
+	which echo
+	echo --version
 
 # Build up folders structure corresponding to inmanta loader structure, so mypy knows what goes where.
 RUN_MYPY_PLUGINS=MYPYPATH=src python -m mypy --html-report mypy/out/inmanta_module_factory -p inmanta_module_factory

@@ -68,7 +68,7 @@ ignore = "H405,H404,H302,H306,H301,H101,E252,E203,F722,W503"
 builtins = "string,number,bool"
 max-line-length = 128
 exclude = "**/.env,venv"
-copyright-check = "True"
+copyright-check = true
 copyright-author = "Inmanta"
 # C errors are not selected by default, so add them to your selection
 select = "E,F,W,C,BLK,I"
