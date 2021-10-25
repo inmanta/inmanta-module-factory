@@ -13,7 +13,6 @@ pipeline {
     options {
         disableConcurrentBuilds()
         checkoutToSubdirectory(env.REPO_NAME)
-        skipDefaultCheckout()
         buildDiscarder(logRotator(numToKeepStr: '30'))
     }
 

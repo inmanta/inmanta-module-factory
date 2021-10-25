@@ -4,11 +4,6 @@ isort = isort src/inmanta_module_factory tests
 black = black src/inmanta_module_factory tests
 flake8 = flake8 src/inmanta_module_factory tests
 
-# This allows to get rid of the setup.cfg file
-toml_to_cfg = python -c 'import toml; import configparser; import sys; config = configparser.ConfigParser(); config["flake8"] = toml.load(sys.stdin)["tool"]["flake8"]; config.write(sys.stdout)'
-setup_flake8 = cat pyproject.toml | $(toml_to_cfg) > setup.cfg
-
-
 .PHONY: install
 install:
 	pip install -U pip
@@ -19,12 +14,10 @@ install:
 format:
 	$(isort)
 	$(black)
-	$(setup_flake8)
 	$(flake8)
 
 .PHONY: pep8
 pep8:
-	$(setup_flake8)
 	$(flake8)
 
 echo:
