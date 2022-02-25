@@ -6,58 +6,69 @@ pipeline {
     }
 
     environment {
+        REPO_NAME="inmanta-module-factory"
         PIP_INDEX_URL='https://artifacts.internal.inmanta.com/inmanta/dev'
     }
 
     options {
         disableConcurrentBuilds()
+        checkoutToSubdirectory(env.REPO_NAME)
         skipDefaultCheckout()
     }
 
     stages {
 
         stage('Setup') {
-          steps {
-            sh '''
-              rm -rf ${WORKSPACE}/env
-              python3 -m venv ${WORKSPACE}/env
-              . ${WORKSPACE}/env/bin/activate
-              make install
-            '''
-          }
+            steps {
+                deleteDir()
+                dir(env.REPO_NAME) {
+                    sh '''
+                    rm -rf ${WORKSPACE}/env
+                    python3 -m venv ${WORKSPACE}/env
+                    . ${WORKSPACE}/env/bin/activate
+                    make install
+                    '''
+                }
+            }
         }
 
         stage('Tests') {
-          steps {
-            sh '''
-              . ${WORKSPACE}/env/bin/activate
-              pytest \
-                --junitxml=junit.xml \
-                --log-cli-level DEBUG \
-                --basetemp=${WORKSPACE}/tmp \
-                -s -vvv \
-                tests
-            '''
-            junit "junit.xml"
-          }
+            steps {
+                dir(env.REPO_NAME) {
+                    sh '''
+                    . ${WORKSPACE}/env/bin/activate
+                    pytest \
+                        --junitxml=junit.xml \
+                        --log-cli-level DEBUG \
+                        --basetemp=${WORKSPACE}/tmp \
+                        -s -vvv \
+                        tests
+                    '''
+                    junit "junit.xml"
+                }
+            }
         }
 
         stage('Code linting') {
-          steps {
-            sh'''
-              . ${WORKSPACE}/env/bin/activate
-              make pep8
-            '''
-          }
+            steps {
+                dir(env.REPO_NAME) {
+                    sh'''
+                    . ${WORKSPACE}/env/bin/activate
+                    make pep8
+                    '''
+                }
+            }
         }
 
         stage('Code static typing check') {
-          steps {
-            sh'''
-              . ${WORKSPACE}/env/bin/activate
-              make mypy
-            '''
-          }
+            steps {
+                dir(env.REPO_NAME) {
+                    sh'''
+                    . ${WORKSPACE}/env/bin/activate
+                    make mypy
+                    '''
+                }
+            }
         }
     }
 
