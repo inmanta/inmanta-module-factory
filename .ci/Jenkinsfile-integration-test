@@ -22,6 +22,7 @@ pipeline {
             steps {
                 deleteDir()
                 dir(env.REPO_NAME) {
+                    checkout scm
                     sh '''
                     rm -rf ${WORKSPACE}/env
                     python3 -m venv ${WORKSPACE}/env
