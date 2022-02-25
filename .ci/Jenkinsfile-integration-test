@@ -17,15 +17,6 @@ pipeline {
     }
 
     stages {
-        stage("Poetry install") {
-            steps {
-                dir(env.REPO_NAME) {
-                    script {
-                        sh '${WORKSPACE}/env/bin/poetry install'
-                    }
-                }
-            }
-        }
 
         stage('Setup') {
           steps {
