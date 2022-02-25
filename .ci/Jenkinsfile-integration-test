@@ -6,13 +6,11 @@ pipeline {
     }
 
     environment {
-        REPO_NAME="inmanta-module-factory"
         PIP_INDEX_URL='https://artifacts.internal.inmanta.com/inmanta/dev'
     }
 
     options {
         disableConcurrentBuilds()
-        checkoutToSubdirectory(env.REPO_NAME)
         skipDefaultCheckout()
     }
 
@@ -60,6 +58,12 @@ pipeline {
               make mypy
             '''
           }
+        }
+    }
+
+    post {
+        always {
+            deleteDir()
         }
     }
 }
