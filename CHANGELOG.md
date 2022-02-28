@@ -1,5 +1,3 @@
-# Changelog
-
 ## v 0.0.3 (?)
 
  - Extend list of inmanta reserved keywords
