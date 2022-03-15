@@ -79,12 +79,12 @@ def test_basic(project: Project) -> None:
         name="peer",
         path=[module.name],
         entity=entity,
-        arity=(1, 1),
+        cardinality=(1, 1),
         peer=EntityRelation(
             name="peer",
             path=[module.name],
             entity=entity2,
-            arity=(1, 1),
+            cardinality=(1, 1),
         ),
     )
 

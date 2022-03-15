@@ -28,7 +28,7 @@ class EntityRelation(ModuleElement):
         name: str,
         path: List[str],
         entity: Entity,
-        arity: Tuple[int, Optional[int]],
+        cardinality: Tuple[int, Optional[int]],
         description: Optional[str] = None,
         peer: Optional["EntityRelation"] = None,
     ) -> None:
@@ -37,7 +37,7 @@ class EntityRelation(ModuleElement):
         :param name: The name of the relation
         :param path: The path in the module where the relation should be printed
         :param entity: The entity this relations belongs to
-        :param arity: The multiplicity of the relation, a tuple contianing the min and max
+        :param cardinality: The multiplicity of the relation, a tuple contianing the min and max
         :param description: A description of the relation
         :param peer: The peer relation, which goes on the other end of "--"
         """
@@ -47,9 +47,9 @@ class EntityRelation(ModuleElement):
         if self._peer is not None:
             self._peer._peer = self
 
-        self.arity_min = str(arity[0])
-        self.arity_max = str(arity[1] or "")
-        self._is_single = (arity[1] or 2) == 1
+        self.cardinality_min = str(cardinality[0])
+        self.cardinality_max = str(cardinality[1] or "")
+        self._is_single = (cardinality[1] or 2) == 1
 
     def _ordering_key(self) -> str:
         if self.path_string != self.entity.path_string:
@@ -98,14 +98,14 @@ class EntityRelation(ModuleElement):
             # Peer entity is in another file
             peer_entity_path = self.peer.entity.full_path_string
 
-        arity = f"[{self.arity_min}:{self.arity_max}]"
-        if self.arity_min == self.arity_max:
-            arity = f"[{self.arity_min}]"
+        cardinality = f"[{self.cardinality_min}:{self.cardinality_max}]"
+        if self.cardinality_min == self.cardinality_max:
+            cardinality = f"[{self.cardinality_min}]"
 
-        peer_suffix = f".{self.peer.name} [{self.peer.arity_min}:{self.peer.arity_max}]"
+        peer_suffix = f".{self.peer.name} [{self.peer.cardinality_min}:{self.peer.cardinality_max}]"
         if not self.peer.name:
             peer_suffix = ""
-        elif self.peer.arity_min == self.peer.arity_max:
-            peer_suffix = f".{self.peer.name} [{self.peer.arity_min}]"
+        elif self.peer.cardinality_min == self.peer.cardinality_max:
+            peer_suffix = f".{self.peer.name} [{self.peer.cardinality_min}]"
 
-        return f"{entity_path}.{self.name} {arity} -- {peer_entity_path}{peer_suffix}\n"
+        return f"{entity_path}.{self.name} {cardinality} -- {peer_entity_path}{peer_suffix}\n"

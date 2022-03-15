@@ -71,12 +71,12 @@ relation = EntityRelation(
     name="tests",
     path=[module.name],
     entity=entity,
-    arity=(0, None),
+    cardinality=(0, None),
     peer=EntityRelation(
         name="",
         path=[module.name],
         entity=entity,
-        arity=(0, 0),
+        cardinality=(0, 0),
     ),
 )
 
