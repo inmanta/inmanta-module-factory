@@ -38,8 +38,7 @@ entity = Entity(
     fields=[
         Attribute(
             name="test",
-            inmanta_type=InmantaPrimitiveList("string"),
-            default="[]",
+            inmanta_type="string",
             description="This is a test attribute",
         )
     ],
