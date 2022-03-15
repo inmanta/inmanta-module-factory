@@ -17,14 +17,11 @@
     Author: Inmanta
 """
 from textwrap import indent
-from typing import TYPE_CHECKING, List, Optional, Sequence, Set
+from typing import List, Optional, Sequence, Set
 
 from inmanta_module_factory.helpers.const import INDENT_PREFIX
+from inmanta_module_factory.inmanta import attribute, entity_relation
 from inmanta_module_factory.inmanta.module_element import ModuleElement
-
-if TYPE_CHECKING:
-    from inmanta_module_factory.inmanta.attribute import Attribute
-    from inmanta_module_factory.inmanta.entity_relation import EntityRelation
 
 
 class EntityField:
@@ -70,16 +67,12 @@ class Entity(ModuleElement):
         self.fields.add(field)
 
     @property
-    def attributes(self) -> List["Attribute"]:
-        from inmanta_module_factory.inmanta.attribute import Attribute
-
-        return [field for field in self.fields if isinstance(field, Attribute)]
+    def attributes(self) -> List["attribute.Attribute"]:
+        return [field for field in self.fields if isinstance(field, attribute.Attribute)]
 
     @property
-    def relations(self) -> List["EntityRelation"]:
-        from inmanta_module_factory.inmanta.entity_relation import EntityRelation
-
-        return [field for field in self.fields if isinstance(field, EntityRelation)]
+    def relations(self) -> List["entity_relation.EntityRelation"]:
+        return [field for field in self.fields if isinstance(field, entity_relation.EntityRelation)]
 
     def _ordering_key(self) -> str:
         return self.name
@@ -97,9 +90,9 @@ class Entity(ModuleElement):
     def docstring(self) -> str:
         doc = super().docstring()
 
-        for attribute in sorted(self.attributes, key=lambda attribute: attribute.name):
-            description = attribute.description or ""
-            doc += f":attr {attribute.name}: {description}\n"
+        for x_attribute in sorted(self.attributes, key=lambda x_attribute: x_attribute.name):
+            description = x_attribute.description or ""
+            doc += f":attr {x_attribute.name}: {description}\n"
 
         for relation in sorted(self.relations, key=lambda relation: relation.name):
             description = relation.description or ""
