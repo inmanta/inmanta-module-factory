@@ -20,24 +20,8 @@ from textwrap import indent
 from typing import List, Optional, Sequence, Set
 
 from inmanta_module_factory.helpers.const import INDENT_PREFIX
-from inmanta_module_factory.inmanta import attribute, entity_relation
+from inmanta_module_factory.inmanta import attribute, entity_field, entity_relation
 from inmanta_module_factory.inmanta.module_element import ModuleElement
-
-
-class EntityField:
-    def __init__(self, name: str, entity: Optional["Entity"] = None) -> None:
-        self.name = name
-        self._entity = entity
-        if self._entity is not None:
-            self._entity.attach_field(self)
-
-    @property
-    def entity(self) -> "Entity":
-        assert self._entity is not None
-        return self._entity
-
-    def attach_entity(self, entity: "Entity") -> None:
-        self._entity = entity
 
 
 class Entity(ModuleElement):
@@ -45,7 +29,7 @@ class Entity(ModuleElement):
         self,
         name: str,
         path: List[str],
-        fields: Optional[Sequence[EntityField]] = None,
+        fields: Optional[Sequence["entity_field.EntityField"]] = None,
         parents: Optional[Sequence["Entity"]] = None,
         description: Optional[str] = None,
     ) -> None:
@@ -63,7 +47,7 @@ class Entity(ModuleElement):
             field.attach_entity(self)
         self.parents = parents or []
 
-    def attach_field(self, field: EntityField) -> None:
+    def attach_field(self, field: "entity_field.EntityField") -> None:
         self.fields.add(field)
 
     @property

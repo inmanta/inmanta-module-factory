@@ -76,7 +76,7 @@ def test_basic_module(project: Project) -> None:
         name="test",
         path=[module.name],
         entity=entity,
-        content=f"std::print(self.{entity.attributes[1].name})",
+        content=f"std::print(self.{index_attribute.name})",
         description="This is a test implementation",
     )
 

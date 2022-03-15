@@ -18,11 +18,12 @@
 """
 from typing import List, Optional, Set, Tuple
 
-from inmanta_module_factory.inmanta.entity import Entity, EntityField
+from inmanta_module_factory.inmanta import entity as inmanta_entity
+from inmanta_module_factory.inmanta import entity_field
 from inmanta_module_factory.inmanta.module_element import ModuleElement
 
 
-class EntityRelation(EntityField, ModuleElement):
+class EntityRelation(entity_field.EntityField, ModuleElement):
     def __init__(
         self,
         name: str,
@@ -30,7 +31,7 @@ class EntityRelation(EntityField, ModuleElement):
         cardinality: Tuple[int, Optional[int]],
         description: Optional[str] = None,
         peer: Optional["EntityRelation"] = None,
-        entity: Optional[Entity] = None,
+        entity: Optional["inmanta_entity.Entity"] = None,
     ) -> None:
         """
         A relation statement (or rather half of it).
@@ -41,8 +42,8 @@ class EntityRelation(EntityField, ModuleElement):
         :param peer: The peer relation, which goes on the other end of "--"
         :param entity: The entity this relations belongs to
         """
+        entity_field.EntityField.__init__(self, name, entity)
         ModuleElement.__init__(self, name, path, description)
-        EntityField.__init__(self, name, entity)
         self._peer = peer
         if self._peer is not None:
             self._peer._peer = self

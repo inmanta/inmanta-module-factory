@@ -18,7 +18,8 @@
 """
 from typing import List, Optional, Sequence, Set
 
-from inmanta_module_factory.inmanta.entity import Entity, EntityField
+from inmanta_module_factory.inmanta.entity import Entity
+from inmanta_module_factory.inmanta.entity_field import EntityField
 from inmanta_module_factory.inmanta.module_element import ModuleElement
 
 
