@@ -35,7 +35,7 @@ module_builder = InmantaModuleBuilder(module)
 entity = Entity(
     name="Test",
     path=[module.name],
-    attributes=[
+    fields=[
         Attribute(
             name="test",
             inmanta_type=InmantaPrimitiveList("string"),
@@ -63,7 +63,7 @@ implement = Implement(
 index = Index(
     path=[module.name],
     entity=entity,
-    attributes=entity.attributes,
+    fields=entity.attributes,
     description="This is a test index",
 )
 
