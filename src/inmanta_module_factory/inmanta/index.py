@@ -20,8 +20,8 @@ from typing import List, Optional, Set
 
 from inmanta_module_factory.inmanta.attribute import Attribute
 from inmanta_module_factory.inmanta.entity import Entity
-from inmanta_module_factory.inmanta.module_element import ModuleElement
 from inmanta_module_factory.inmanta.entity_relation import EntityRelation
+from inmanta_module_factory.inmanta.module_element import ModuleElement
 
 
 class Index(ModuleElement):

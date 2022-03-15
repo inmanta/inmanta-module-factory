@@ -16,6 +16,7 @@
     Contact: code@inmanta.com
     Author: Inmanta
 """
+import logging
 from pathlib import Path
 
 from pytest_inmanta.plugin import Project
@@ -28,8 +29,6 @@ from inmanta_module_factory.inmanta.implement import Implement
 from inmanta_module_factory.inmanta.implementation import Implementation
 from inmanta_module_factory.inmanta.index import Index
 from inmanta_module_factory.inmanta.module import Module
-import logging
-
 
 LOGGER = logging.getLogger(__name__)
 
