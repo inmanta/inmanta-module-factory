@@ -16,11 +16,9 @@
     Contact: code@inmanta.com
     Author: Inmanta
 """
-from typing import List, Optional, Set
+from typing import List, Optional, Sequence, Set
 
-from inmanta_module_factory.inmanta.attribute import Attribute
-from inmanta_module_factory.inmanta.entity import Entity
-from inmanta_module_factory.inmanta.entity_relation import EntityRelation
+from inmanta_module_factory.inmanta.entity import Entity, EntityField
 from inmanta_module_factory.inmanta.module_element import ModuleElement
 
 
@@ -29,9 +27,7 @@ class Index(ModuleElement):
         self,
         path: List[str],
         entity: Entity,
-        *,
-        attributes: Optional[List[Attribute]] = None,
-        relations: Optional[List[EntityRelation]] = None,
+        fields: Sequence[EntityField],
         description: Optional[str] = None,
     ) -> None:
         """
@@ -44,17 +40,10 @@ class Index(ModuleElement):
         """
         super().__init__("index", path, description)
         self.entity = entity
-        self.attributes = attributes or []
-        self.relations = relations or []
-
-    @property
-    def index_members(self) -> List[str]:
-        index_members = [attribute.name for attribute in self.attributes]
-        index_members += [relation.name for relation in self.relations]
-        return index_members
+        self.fields = fields
 
     def _ordering_key(self) -> str:
-        suffix = "_".join(self.index_members)
+        suffix = "_".join([field.name for field in self.fields])
         if self.path_string != self.entity.path_string:
             return f"{chr(255)}.index.{self.entity.full_path_string}_{suffix}"
 
@@ -70,15 +59,11 @@ class Index(ModuleElement):
         return imports
 
     def validate(self) -> bool:
-        if len(self.attributes) + len(self.relations) == 0:
+        if len(self.fields) == 0:
             return False
 
-        if not len(set(self.attributes) - set(self.entity.attributes)) == 0:
+        if not len(set(self.fields) - self.entity.fields) == 0:
             return False
-
-        for relation in self.relations:
-            if relation.entity != self.entity:
-                return False
 
         return True
 
@@ -88,4 +73,4 @@ class Index(ModuleElement):
             # Entity is in another file
             entity_path = self.entity.full_path_string
 
-        return f"index {entity_path}({', '.join(self.index_members)})\n"
+        return f"index {entity_path}({', '.join([field.name for field in self.fields])})\n"

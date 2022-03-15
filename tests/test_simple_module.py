@@ -54,20 +54,22 @@ def test_basic_module(project: Project) -> None:
     entity = Entity(
         "Test",
         path=[module.name],
-        attributes=[
+        fields=[
             Attribute(
                 name="test",
                 inmanta_type=InmantaPrimitiveList("string"),
                 default="[]",
                 description="This is a test list attribute",
             ),
-            Attribute(
-                name="test1",
-                inmanta_type="string",
-                description="This is a test attribute",
-            ),
         ],
         description="This is a test entity",
+    )
+
+    index_attribute = Attribute(
+        name="test1",
+        inmanta_type="string",
+        description="This is a test attribute",
+        entity=entity,
     )
 
     implementation = Implementation(
@@ -87,7 +89,7 @@ def test_basic_module(project: Project) -> None:
     index = Index(
         path=[module.name],
         entity=entity,
-        attributes=entity.attributes[1:2],
+        fields=[index_attribute],
         description="This is a test index",
     )
 

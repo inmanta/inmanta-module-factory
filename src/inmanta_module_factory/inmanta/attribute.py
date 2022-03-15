@@ -20,6 +20,8 @@ from typing import Optional, Union
 
 from typing_extensions import Literal
 
+from inmanta_module_factory.inmanta.entity import Entity, EntityField
+
 InmantaPrimitiveType = Literal["string", "int", "float", "number", "bool"]
 
 
@@ -34,7 +36,7 @@ class InmantaPrimitiveList:
 InmantaAttributeType = Union[Literal["dict", "any"], InmantaPrimitiveType, InmantaPrimitiveList]
 
 
-class Attribute:
+class Attribute(EntityField):
     def __init__(
         self,
         name: str,
@@ -42,6 +44,7 @@ class Attribute:
         optional: bool = False,
         default: Optional[str] = None,
         description: Optional[str] = None,
+        entity: Optional[Entity] = None,
     ) -> None:
         """
         :param name: The name of the attribute
@@ -50,7 +53,7 @@ class Attribute:
         :param default: Whether this attribute has a default value or not
         :param description: A description of the attribute to add in the docstring
         """
-        self.name = name
+        EntityField.__init__(self, name, entity)
         self._inmanta_type = inmanta_type
         self.optional = optional
         self.default = default

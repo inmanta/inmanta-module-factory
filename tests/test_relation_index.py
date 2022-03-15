@@ -44,13 +44,13 @@ def test_basic(project: Project) -> None:
     base_entity = Entity(
         "Entity",
         path=["std"],
-        attributes=[],
+        fields=[],
     )
 
     entity = Entity(
         "Test",
         path=[module.name],
-        attributes=[
+        fields=[
             Attribute(
                 name="test",
                 inmanta_type="string",
@@ -64,7 +64,7 @@ def test_basic(project: Project) -> None:
     entity2 = Entity(
         "Test2",
         path=[module.name],
-        attributes=[
+        fields=[
             Attribute(
                 name="test",
                 inmanta_type="string",
@@ -110,15 +110,14 @@ def test_basic(project: Project) -> None:
     index = Index(
         path=[module.name],
         entity=entity,
-        attributes=[entity.attributes[0]],
+        fields=[entity.attributes[0]],
         description="This is a test index",
     )
 
     index2 = Index(
         path=[module.name],
         entity=entity2,
-        attributes=[entity2.attributes[0]],
-        relations=[relation.peer],
+        fields=[entity2.attributes[0], relation.peer],
         description="This is another test index",
     )
 

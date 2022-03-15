@@ -17,11 +17,30 @@
     Author: Inmanta
 """
 from textwrap import indent
-from typing import List, Optional, Set
+from typing import TYPE_CHECKING, List, Optional, Sequence, Set
 
 from inmanta_module_factory.helpers.const import INDENT_PREFIX
-from inmanta_module_factory.inmanta.attribute import Attribute
 from inmanta_module_factory.inmanta.module_element import ModuleElement
+
+if TYPE_CHECKING:
+    from inmanta_module_factory.inmanta.attribute import Attribute
+    from inmanta_module_factory.inmanta.entity_relation import EntityRelation
+
+
+class EntityField:
+    def __init__(self, name: str, entity: Optional["Entity"] = None) -> None:
+        self.name = name
+        self._entity = entity
+        if self._entity is not None:
+            self._entity.attach_field(self)
+
+    @property
+    def entity(self) -> "Entity":
+        assert self._entity is not None
+        return self._entity
+
+    def attach_entity(self, entity: "Entity") -> None:
+        self._entity = entity
 
 
 class Entity(ModuleElement):
@@ -29,21 +48,38 @@ class Entity(ModuleElement):
         self,
         name: str,
         path: List[str],
-        attributes: List[Attribute],
-        parents: Optional[List["Entity"]] = None,
+        fields: Optional[Sequence[EntityField]] = None,
+        parents: Optional[Sequence["Entity"]] = None,
         description: Optional[str] = None,
     ) -> None:
         """
         An entity definition.
         :param name: The name of the entity
         :param path: The place in the module where the entity should be printed out
-        :param attributes: A list of all the attributes of this entity
+        :param fields: A list of all the attributes of this entity
         :param parents: A list of all the entities this one inherit from
         :param description: A description of this entity, to be added in its docstring
         """
         super().__init__(name, path, description)
-        self.attributes = attributes
+        self.fields = {field for field in (fields or [])}
+        for field in self.fields:
+            field.attach_entity(self)
         self.parents = parents or []
+
+    def attach_field(self, field: EntityField) -> None:
+        self.fields.add(field)
+
+    @property
+    def attributes(self) -> List["Attribute"]:
+        from inmanta_module_factory.inmanta.attribute import Attribute
+
+        return [field for field in self.fields if isinstance(field, Attribute)]
+
+    @property
+    def relations(self) -> List["EntityRelation"]:
+        from inmanta_module_factory.inmanta.entity_relation import EntityRelation
+
+        return [field for field in self.fields if isinstance(field, EntityRelation)]
 
     def _ordering_key(self) -> str:
         return self.name
@@ -61,11 +97,13 @@ class Entity(ModuleElement):
     def docstring(self) -> str:
         doc = super().docstring()
 
-        for attribute in self.attributes:
+        for attribute in sorted(self.attributes, key=lambda attribute: attribute.name):
             description = attribute.description or ""
             doc += f":attr {attribute.name}: {description}\n"
 
-        # TODO add relations ?
+        for relation in sorted(self.relations, key=lambda relation: relation.name):
+            description = relation.description or ""
+            doc += f":rel {relation.name}: {description}\n"
 
         return doc
 

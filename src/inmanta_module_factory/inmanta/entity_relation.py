@@ -18,31 +18,31 @@
 """
 from typing import List, Optional, Set, Tuple
 
-from inmanta_module_factory.inmanta.entity import Entity
+from inmanta_module_factory.inmanta.entity import Entity, EntityField
 from inmanta_module_factory.inmanta.module_element import ModuleElement
 
 
-class EntityRelation(ModuleElement):
+class EntityRelation(EntityField, ModuleElement):
     def __init__(
         self,
         name: str,
         path: List[str],
-        entity: Entity,
         cardinality: Tuple[int, Optional[int]],
         description: Optional[str] = None,
         peer: Optional["EntityRelation"] = None,
+        entity: Optional[Entity] = None,
     ) -> None:
         """
         A relation statement (or rather half of it).
         :param name: The name of the relation
         :param path: The path in the module where the relation should be printed
-        :param entity: The entity this relations belongs to
         :param cardinality: The multiplicity of the relation, a tuple contianing the min and max
         :param description: A description of the relation
         :param peer: The peer relation, which goes on the other end of "--"
+        :param entity: The entity this relations belongs to
         """
-        super().__init__(name, path, description)
-        self.entity = entity
+        ModuleElement.__init__(self, name, path, description)
+        EntityField.__init__(self, name, entity)
         self._peer = peer
         if self._peer is not None:
             self._peer._peer = self
