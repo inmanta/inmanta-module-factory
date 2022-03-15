@@ -37,7 +37,9 @@ class Entity(ModuleElement):
         An entity definition.
         :param name: The name of the entity
         :param path: The place in the module where the entity should be printed out
-        :param fields: A list of all the attributes of this entity
+        :param fields: A list of all the attributes and relations of this entity.
+            All the fields provided here will be attached to this entity using their
+            method `attach_entity`.
         :param parents: A list of all the entities this one inherit from
         :param description: A description of this entity, to be added in its docstring
         """

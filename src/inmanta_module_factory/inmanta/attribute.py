@@ -53,6 +53,7 @@ class Attribute(entity_field.EntityField):
         :param optional: Whether this attribute is optional or not
         :param default: Whether this attribute has a default value or not
         :param description: A description of the attribute to add in the docstring
+        :param entity: The entity this attribute is a part of
         """
         entity_field.EntityField.__init__(self, name, entity)
         self._inmanta_type = inmanta_type

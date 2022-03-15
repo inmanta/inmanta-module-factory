@@ -23,6 +23,15 @@ from inmanta_module_factory.inmanta import entity as inmanta_entity
 
 class EntityField:
     def __init__(self, name: str, entity: Optional["inmanta_entity.Entity"] = None) -> None:
+        """
+        A base class for the entity attributes and relations
+        :param name: The name of the class field
+        :param entity: The entity this field is a member of
+            If the entity is provided here, the field will be automatically attached to the
+            entity as well.  If you don't provide the entity here, the method `attach_entity`
+            has to be called later on.  The constructor of `Entity` calls this method
+            automatically.
+        """
         self.name: str = name
         self._entity = entity
         if self._entity is not None:
