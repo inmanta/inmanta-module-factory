@@ -69,5 +69,7 @@ class Implementation(ModuleElement):
             docstring = indent(docstring, prefix=INDENT_PREFIX)
 
         return (
-            f"implementation {self.name} for {entity_path}:\n{docstring}" + indent(self.content.strip(), prefix=INDENT_PREFIX) + "\nend\n"
+            f"implementation {self.name} for {entity_path}:\n{docstring}"
+            + indent(self.content.strip(), prefix=INDENT_PREFIX)
+            + "\nend\n"
         )
