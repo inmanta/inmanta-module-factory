@@ -16,32 +16,18 @@
     Contact: code@inmanta.com
     Author: Inmanta
 """
-from typing import Optional, Union
+from typing import Optional
 
-from typing_extensions import Literal
-
+from inmanta_module_factory.inmanta import typedef
 from inmanta_module_factory.inmanta import entity as inmanta_entity
 from inmanta_module_factory.inmanta import entity_field
-
-InmantaPrimitiveType = Literal["string", "int", "float", "number", "bool"]
-
-
-class InmantaPrimitiveList:
-    def __init__(self, primitive_type: InmantaPrimitiveType) -> None:
-        self.primitive_type = primitive_type
-
-    def __str__(self) -> str:
-        return self.primitive_type + "[]"
-
-
-InmantaAttributeType = Union[Literal["dict", "any"], InmantaPrimitiveType, InmantaPrimitiveList]
 
 
 class Attribute(entity_field.EntityField):
     def __init__(
         self,
         name: str,
-        inmanta_type: InmantaAttributeType,
+        inmanta_type: typedef.InmantaAttributeType,
         optional: bool = False,
         default: Optional[str] = None,
         description: Optional[str] = None,
@@ -63,10 +49,13 @@ class Attribute(entity_field.EntityField):
 
     @property
     def is_list(self) -> bool:
-        return isinstance(self._inmanta_type, InmantaPrimitiveList)
+        return isinstance(self._inmanta_type, typedef.InmantaPrimitiveList)
 
     @property
     def inmanta_type(self) -> str:
+        if isinstance(self._inmanta_type, typedef.TypeDef):
+            return self._inmanta_type.full_path_string
+
         return str(self._inmanta_type)
 
     def __str__(self) -> str:
