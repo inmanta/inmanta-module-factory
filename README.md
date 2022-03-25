@@ -9,6 +9,7 @@ This package contains a few python classes that represents components of an inma
  - `EntityRelation`: Represents an relation between two entities.
  - `Index`: Represents an `index` statement.
  - `Attribute`: Represents an entity attribute.
+ - `TypeDef`: Represents a `typedef` statement.
  - `Module`: Represents the module itself.
  - `Plugin`: Represents a plugin.
 

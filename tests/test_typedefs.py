@@ -175,8 +175,9 @@ def test_list(project: Project) -> None:
 
 def test_composed(project: Project) -> None:
     """
-    This simple test creates a simple module containing a type definition.  This type definition
-    is used for a list attribute of the single entity of this module.
+    This simple test creates a more complex module containing a few type definitions.
+    One base typedef is defined in a different file, and two different typedefs are defined
+    by adding constraints on this one.
     """
     module = Module(name="test")
     module_builder = InmantaModuleBuilder(module)
