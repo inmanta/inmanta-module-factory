@@ -30,16 +30,18 @@ class InmantaType:
     @property
     def path_string(self) -> str:
         """
-        This returns the path of this entity's file in this module.  The name of the module
-        is the first element of the path.
+        This methods can be used to differentiate typedefs from primitive types
+        A primitive type will always have an empty path_string as it is not defined anywhere
+        in our model.
         """
         return ""
 
     @property
     def full_path_string(self) -> str:
         """
-        This returns the path of this entity in this module.  The difference with path_string
-        is that this one contains the name of the entity at the end.
+        This methods can be used to differentiate typedefs from primitive types
+        A primitive type will always have as full_path_string its name as it has not been defined
+        anywhere in our model.
         """
         return self.name
 
@@ -48,6 +50,10 @@ class InmantaType:
 
 
 class InmantaAdvancedType(InmantaType, str):
+    """
+    This class represents all inmanta primitive types that can not be used as base type typedefs or lists
+    """
+
     def __init__(self, name: Literal["dict", "any"]) -> None:
         super().__init__(name)
 
@@ -57,11 +63,20 @@ InmantaAnyType = InmantaAdvancedType("any")
 
 
 class InmantaBaseType(InmantaType):
+    """
+    This class represents all inmanta types that can be used a base type for typedefs or lists
+    """
+
     def __init__(self, name: str) -> None:
         super().__init__(name)
 
 
 class InmantaPrimitiveType(InmantaBaseType, str):
+    """
+    This class represents all the inmanta primitive types that can be used as base type for typedefs
+    or lists
+    """
+
     def __init__(self, name: Literal["int", "bool", "number", "string"]) -> None:
         super().__init__(name)
 
@@ -73,6 +88,11 @@ InmantaStringType = InmantaPrimitiveType("string")
 
 
 class InmantaListType(InmantaType):
+    """
+    This class represents all list types in inmanta language, a list type is composed of a base type, which
+    is the type of each item of the list.
+    """
+
     def __init__(self, item_type: InmantaBaseType) -> None:
         super().__init__(item_type.name + "[]")
         self.item_type = item_type
@@ -80,15 +100,13 @@ class InmantaListType(InmantaType):
     @property
     def path_string(self) -> str:
         """
-        This returns the path of this entity's file in this module.  The name of the module
-        is the first element of the path.
+        The path_string of a list is the same one as the one of its item type
         """
         return self.item_type.path_string
 
     @property
     def full_path_string(self) -> str:
         """
-        This returns the path of this entity in this module.  The difference with path_string
-        is that this one contains the name of the entity at the end.
+        The full_path_string of a list is the same one as the one of its item type plus "[]"
         """
         return self.item_type.full_path_string + "[]"

@@ -23,6 +23,11 @@ from inmanta_module_factory.inmanta.types import InmantaBaseType
 
 
 class TypeDef(ModuleElement, InmantaBaseType):
+    """
+    This class represents a typedef statement.  The typedef has to be added to the module by the user.
+    It can be used as base type for another typedef or as item type for a list.
+    """
+
     def __init__(
         self,
         name: str,
