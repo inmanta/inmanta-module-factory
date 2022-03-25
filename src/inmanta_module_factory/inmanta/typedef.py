@@ -17,6 +17,7 @@
     Author: Inmanta
 """
 from typing import List, Optional, Set, Union
+
 from typing_extensions import Literal
 
 from inmanta_module_factory.inmanta.module_element import ModuleElement

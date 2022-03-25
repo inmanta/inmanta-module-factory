@@ -16,10 +16,10 @@
     Contact: code@inmanta.com
     Author: Inmanta
 """
-import pytest
-import inmanta
 from pathlib import Path
 
+import inmanta
+import pytest
 from pytest_inmanta.plugin import Project
 
 from inmanta_module_factory.builder import InmantaModuleBuilder
@@ -99,7 +99,7 @@ def test_simple(project: Project) -> None:
                 )
             """,
             no_dedent=False,
-    )
+        )
 
 
 def test_list(project: Project) -> None:
