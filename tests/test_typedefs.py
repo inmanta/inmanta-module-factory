@@ -183,7 +183,7 @@ def test_composed(project: Project) -> None:
 
     typedef = TypeDef(
         "test",
-        path=[module.name],
+        path=[module.name, "types"],
         base_type="string",
         constraint="std::length(self) >= 10",
         description="String of minimum 10 characters",
@@ -197,6 +197,14 @@ def test_composed(project: Project) -> None:
         description="String of maximum 10 characters",
     )
 
+    typedef2 = TypeDef(
+        "test2",
+        path=[module.name],
+        base_type=typedef,
+        constraint='std::validate_type("pydantic.constr", self, {"regex": "[a-z]+"})',
+        description="String of alphabetical characters",
+    )
+
     entity = Entity(
         "Test",
         path=[module.name],
@@ -204,6 +212,12 @@ def test_composed(project: Project) -> None:
             Attribute(
                 name="test",
                 inmanta_type=typedef1,
+                description="This is a test attribute",
+            ),
+            Attribute(
+                name="test2",
+                inmanta_type=typedef2,
+                default='"abcdefghij"',
                 description="This is a test attribute",
             ),
         ],
@@ -223,6 +237,7 @@ def test_composed(project: Project) -> None:
 
     module_builder.add_module_element(typedef)
     module_builder.add_module_element(typedef1)
+    module_builder.add_module_element(typedef2)
     module_builder.add_module_element(entity)
     module_builder.add_module_element(implement)
 

@@ -73,7 +73,10 @@ class Attribute(entity_field.EntityField):
     @property
     def inmanta_type(self) -> str:
         if isinstance(self._inmanta_type, typedef.TypeDef):
-            return self._inmanta_type.full_path_string
+            if self._inmanta_type.path_string == self.entity.path_string:
+                return self._inmanta_type.name
+            else:
+                return self._inmanta_type.full_path_string
 
         return str(self._inmanta_type)
 

@@ -42,7 +42,7 @@ class TypeDef(ModuleElement):
         :param description: Some explanation about what this constraint does
         """
         super().__init__(name, path, description)
-        self.base_type = base_type
+        self._base_type = base_type
         self.constraint = constraint
 
     def _ordering_key(self) -> str:
@@ -51,17 +51,25 @@ class TypeDef(ModuleElement):
     def _get_derived_imports(self) -> Set[str]:
         imports: Set[str] = set()
 
-        if isinstance(self.base_type, TypeDef):
-            if self.base_type.path != self.path:
+        if isinstance(self._base_type, TypeDef):
+            if self._base_type.path_string != self.path_string:
                 # Base type is defined in another file
-                imports.add(self.base_type.path_string)
+                imports.add(self._base_type.path_string)
 
         return imports
 
-    def __str__(self) -> str:
-        base_type_expression = self.base_type.full_path_string if isinstance(self.base_type, TypeDef) else self.base_type
+    @property
+    def base_type(self) -> str:
+        if isinstance(self._base_type, TypeDef):
+            if self._base_type.path_string == self.path_string:
+                return self._base_type.name
+            else:
+                return self._base_type.full_path_string
 
-        stmt = f"typedef {self.name} as {base_type_expression} matching {self.constraint}"
+        return self._base_type
+
+    def __str__(self) -> str:
+        stmt = f"typedef {self.name} as {self.base_type} matching {self.constraint}"
         docstring = self.docstring()
         if docstring:
             docstring = f'"""\n{docstring}"""\n'
