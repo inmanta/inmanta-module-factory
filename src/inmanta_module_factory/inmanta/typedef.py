@@ -16,21 +16,18 @@
     Contact: code@inmanta.com
     Author: Inmanta
 """
-from typing import List, Optional, Set, Union
-
-from typing_extensions import Literal
+from typing import List, Optional, Set
 
 from inmanta_module_factory.inmanta.module_element import ModuleElement
+from inmanta_module_factory.inmanta.types import InmantaBaseType
 
-InmantaPrimitiveType = Literal["string", "int", "number", "bool"]
 
-
-class TypeDef(ModuleElement):
+class TypeDef(ModuleElement, InmantaBaseType):
     def __init__(
         self,
         name: str,
         path: List[str],
-        base_type: "InmantaBaseType",
+        base_type: InmantaBaseType,
         constraint: str,
         description: Optional[str] = None,
     ) -> None:
@@ -42,7 +39,7 @@ class TypeDef(ModuleElement):
         :param description: Some explanation about what this constraint does
         """
         super().__init__(name, path, description)
-        self._base_type = base_type
+        self.base_type = base_type
         self.constraint = constraint
 
     def _ordering_key(self) -> str:
@@ -51,30 +48,26 @@ class TypeDef(ModuleElement):
     def _get_derived_imports(self) -> Set[str]:
         imports: Set[str] = set()
 
-        if isinstance(self._base_type, TypeDef):
-            if self._base_type.path_string != self.path_string:
-                # Base type is defined in another file
-                imports.add(self._base_type.path_string)
+        if self.base_type.path_string == "":
+            # The base type is a primitive type, we can't import it
+            return imports
+
+        if self.base_type.path_string != self.path_string:
+            # Base type is defined in another file
+            imports.add(self.base_type.path_string)
 
         return imports
 
-    @property
-    def base_type(self) -> str:
-        if isinstance(self._base_type, TypeDef):
-            if self._base_type.path_string == self.path_string:
-                return self._base_type.name
-            else:
-                return self._base_type.full_path_string
-
-        return self._base_type
-
     def __str__(self) -> str:
-        stmt = f"typedef {self.name} as {self.base_type} matching {self.constraint}"
+        # The base type reference is the full path if the base type is not defined
+        # in the same file as this typedef
+        base_type_reference = (
+            self.base_type.full_path_string if self.base_type.path_string != self.path_string else self.base_type.name
+        )
+
+        stmt = f"typedef {self.name} as {base_type_reference} matching {self.constraint}"
         docstring = self.docstring()
         if docstring:
             docstring = f'"""\n{docstring}"""\n'
 
         return f"{stmt}\n{docstring}"
-
-
-InmantaBaseType = Union[InmantaPrimitiveType, TypeDef]

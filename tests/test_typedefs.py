@@ -23,12 +23,13 @@ import pytest
 from pytest_inmanta.plugin import Project
 
 from inmanta_module_factory.builder import InmantaModuleBuilder
-from inmanta_module_factory.inmanta.attribute import Attribute, InmantaPrimitiveList
+from inmanta_module_factory.inmanta.attribute import Attribute
 from inmanta_module_factory.inmanta.entity import Entity
 from inmanta_module_factory.inmanta.implement import Implement
 from inmanta_module_factory.inmanta.implementation import Implementation
 from inmanta_module_factory.inmanta.module import Module
 from inmanta_module_factory.inmanta.typedef import TypeDef
+from inmanta_module_factory.inmanta.types import InmantaListType, InmantaStringType
 
 
 def test_simple(project: Project) -> None:
@@ -42,7 +43,7 @@ def test_simple(project: Project) -> None:
     typedef = TypeDef(
         "test",
         path=[module.name],
-        base_type="string",
+        base_type=InmantaStringType,
         constraint="std::length(self) > 10",
         description="String of minimum 10 characters",
     )
@@ -113,7 +114,7 @@ def test_list(project: Project) -> None:
     typedef = TypeDef(
         "test",
         path=[module.name],
-        base_type="string",
+        base_type=InmantaStringType,
         constraint="std::length(self) > 10",
         description="String of minimum 10 characters",
     )
@@ -124,7 +125,7 @@ def test_list(project: Project) -> None:
         fields=[
             Attribute(
                 name="test",
-                inmanta_type=InmantaPrimitiveList(typedef),
+                inmanta_type=InmantaListType(typedef),
                 description="This is a test attribute",
             ),
         ],
@@ -185,7 +186,7 @@ def test_composed(project: Project) -> None:
     typedef = TypeDef(
         "test",
         path=[module.name, "types"],
-        base_type="string",
+        base_type=InmantaStringType,
         constraint="std::length(self) >= 10",
         description="String of minimum 10 characters",
     )

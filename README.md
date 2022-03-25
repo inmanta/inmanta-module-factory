@@ -27,6 +27,7 @@ from inmanta_module_factory.inmanta.implement import Implement
 from inmanta_module_factory.inmanta.implementation import Implementation
 from inmanta_module_factory.inmanta.index import Index
 from inmanta_module_factory.inmanta.module import Module
+from inmanta_module_factory.inmanta.types import InmantaStringType
 from inmanta_module_factory.builder import InmantaModuleBuilder
 
 
@@ -39,7 +40,7 @@ entity = Entity(
     fields=[
         Attribute(
             name="test",
-            inmanta_type="string",
+            inmanta_type=InmantaStringType,
             description="This is a test attribute",
         )
     ],
