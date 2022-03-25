@@ -16,7 +16,8 @@
     Contact: code@inmanta.com
     Author: Inmanta
 """
-from typing import List, Literal, Optional, Set, Union
+from typing import List, Optional, Set, Union
+from typing_extensions import Literal
 
 from inmanta_module_factory.inmanta.module_element import ModuleElement
 
@@ -57,11 +58,7 @@ class TypeDef(ModuleElement):
         return imports
 
     def __str__(self) -> str:
-        base_type_expression = (
-            self.base_type.full_path_string
-            if isinstance(self.base_type, TypeDef)
-            else self.base_type
-        )
+        base_type_expression = self.base_type.full_path_string if isinstance(self.base_type, TypeDef) else self.base_type
 
         stmt = f"typedef {self.name} as {base_type_expression} matching {self.constraint}"
         docstring = self.docstring()
@@ -70,20 +67,5 @@ class TypeDef(ModuleElement):
 
         return f"{stmt}\n{docstring}"
 
-class InmantaPrimitiveList:
-    def __init__(self, primitive_type: "InmantaBaseType") -> None:
-        self._primitive_type = primitive_type
-
-    @property
-    def primitive_type(self) -> str:
-        if isinstance(self._primitive_type, TypeDef):
-            return self._primitive_type.full_path_string
-
-        return self._primitive_type
-
-    def __str__(self) -> str:
-        return self.primitive_type + "[]"
-
 
 InmantaBaseType = Union[InmantaPrimitiveType, TypeDef]
-InmantaAttributeType = Union[Literal["dict", "any"], InmantaBaseType, InmantaPrimitiveList]
