@@ -1,5 +1,6 @@
 # v 1.2.0 (?)
 Changes in this release:
+ - Added support for typedef statement. (#109)
 
 # v 1.1.0 (2022-03-18)
 Changes in this release:
