@@ -20,7 +20,7 @@ import logging
 import shutil
 from pathlib import Path
 from textwrap import dedent
-from typing import Dict, List, Optional, Set
+from typing import Any, Dict, List, Optional, Set
 
 import yaml
 
@@ -60,12 +60,12 @@ class InmantaModuleBuilder:
     def add_plugin(self, plugin: Plugin) -> None:
         self._plugins.append(plugin)
 
-    def generate_path_tree(self) -> dict:
+    def generate_path_tree(self) -> Dict[str, Any]:
         """
         Convert the list of paths into a dict tree, which represents the generated file structure.
         Each key in the dict represents a sub-folder, the _init.cf files are not represented.
         """
-        tree = dict()
+        tree: Dict[str, Any] = dict()
         for raw_path in self._model_files.keys():
             path = raw_path.split("::")
             tree_ref = tree
@@ -77,7 +77,7 @@ class InmantaModuleBuilder:
 
         return tree
 
-    def generate_module_stats(self, path: Optional[str] = None, tree: Optional[dict] = None) -> ModuleStats:
+    def generate_module_stats(self, path: Optional[str] = None, tree: Optional[Dict[str, Any]] = None) -> ModuleStats:
         """
         Generate statistics about the generated module content.  The statistics simply counts the amount of
         different elements in _init.cf file in each module as well as the sum of those counts for all the
@@ -90,6 +90,7 @@ class InmantaModuleBuilder:
             tree = self.generate_path_tree()
             for elem in path.split("::"):
                 tree = tree[elem]
+                assert isinstance(tree, dict)
 
         # Getting the stats for the module's init file
         file_stats: Dict[str, int] = ModuleFileStats().dict()
