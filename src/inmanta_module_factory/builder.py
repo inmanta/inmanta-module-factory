@@ -23,7 +23,7 @@ from textwrap import dedent
 from typing import Any, Dict, List, Optional, Set
 
 import yaml
-from cookiecutter.main import cookiecutter
+from cookiecutter.main import cookiecutter  # type: ignore
 
 from inmanta_module_factory.helpers import utils
 from inmanta_module_factory.inmanta.module import Module
