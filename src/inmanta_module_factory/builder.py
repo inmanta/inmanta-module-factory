@@ -16,7 +16,6 @@
     Contact: code@inmanta.com
     Author: Inmanta
 """
-from cookiecutter.main import cookiecutter
 import logging
 import shutil
 from pathlib import Path
@@ -24,6 +23,7 @@ from textwrap import dedent
 from typing import Any, Dict, List, Optional, Set
 
 import yaml
+from cookiecutter.main import cookiecutter
 
 from inmanta_module_factory.helpers import utils
 from inmanta_module_factory.inmanta.module import Module
@@ -247,7 +247,7 @@ class InmantaModuleBuilder:
             no_input=True,
             extra_context={
                 "module_name": self._module.name,
-            }
+            },
         )
 
         # The following parts of the module are overwritten fully by the generator
