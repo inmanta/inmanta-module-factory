@@ -53,8 +53,6 @@ class Implement(ModuleElement):
         else:
             self.implemementations = list(implementations or [])
 
-        self._implementation = self.implemementations[0]
-
         self.entity = entity
         self.condition = condition
         self.using_parents = using_parents
@@ -62,7 +60,7 @@ class Implement(ModuleElement):
     @property
     def implementation(self) -> Implementation:
         # TODO deprecated
-        return self._implementation
+        return self.implemementations[0]
 
     def _ordering_key(self) -> str:
         implementations_key = ".".join(implementation.full_path_string for implementation in self.implemementations)
@@ -99,7 +97,7 @@ class Implement(ModuleElement):
         return False
 
     def validate(self) -> bool:
-        if not self.implemementations or self.using_parents:
+        if not self.implemementations and not self.using_parents:
             # We need to have at least one implementations
             # or using_parents must be True, otherwise this implement
             # statement is useless (and incomplete)
