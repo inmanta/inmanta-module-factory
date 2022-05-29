@@ -16,7 +16,7 @@
     Contact: code@inmanta.com
     Author: Inmanta
 """
-from typing import List, Optional, Set
+from typing import List, Optional, Sequence, Set
 
 from inmanta_module_factory.inmanta.entity import Entity
 from inmanta_module_factory.inmanta.implementation import Implementation
@@ -27,35 +27,54 @@ class Implement(ModuleElement):
     def __init__(
         self,
         path: List[str],
-        implementation: Implementation,
+        implementation: Optional[Implementation],
         entity: Entity,
         condition: Optional[str] = None,
         description: Optional[str] = None,
         using_parents: bool = False,
+        *,
+        implementations: Optional[Sequence[Implementation]] = None,
     ) -> None:
         """
         An implement statement
         :param path: The place in the module where this implem statement should be printed
-        :param implementation: The implementation this statement refers to
+        :param implementation: (deprecated) The implementation this statement refers to
         :param entity: The entity this statement refers to
         :param condition: A condition (inmanta boolean expression) to add to this statement
         :param description: A description to add in a docstring above the statement
         """
         super().__init__("implement", path, description)
-        self.implementation = implementation
+
+        if implementation is not None and implementations:
+            raise ValueError("Parameter implementation and implementations can not be used together")
+        elif implementation is not None:
+            # TODO deprecated
+            self.implemementations = [implementation]
+        else:
+            self.implemementations = list(implementations or [])
+
+        self._implementation = self.implemementations[0]
+
         self.entity = entity
         self.condition = condition
         self.using_parents = using_parents
 
+    @property
+    def implementation(self) -> Implementation:
+        # TODO deprecated
+        return self._implementation
+
     def _ordering_key(self) -> str:
-        return f"{chr(255)}.implement.{self.entity.full_path_string}.{self.implementation.full_path_string}"
+        implementations_key = ".".join(implementation.full_path_string for implementation in self.implemementations)
+        return f"{chr(255)}.implement.{self.entity.full_path_string}.{implementations_key}"
 
     def _get_derived_imports(self) -> Set[str]:
         imports = set()
 
-        if self.path_string != self.implementation.path_string:
-            # Implementation is in a different file
-            imports.add(self.implementation.path_string)
+        for implementation in self.implemementations:
+            if self.path_string != implementation.path_string:
+                # Implementation is in a different file
+                imports.add(implementation.path_string)
 
         if self.path_string != self.entity.path_string:
             # Entity is in a different file
@@ -63,21 +82,30 @@ class Implement(ModuleElement):
 
         return imports
 
-    def validate(self) -> bool:
+    def _validate_implementation(self, implementation: Implementation) -> bool:
         # The implementation's entity should be the same as this entity or one of its parent
-        if self.implementation.entity == self.entity:
+        if implementation.entity == self.entity:
             return True
 
         # Doing a dfs, looking into the entity's parents, and its parent's parents, etc.
         parents = [parent for parent in self.entity.parents]
         while parents:
             parent = parents.pop()
-            if self.implementation.entity == parent:
+            if implementation.entity == parent:
                 return True
 
             parents.extend(parent.parents)
 
         return False
+
+    def validate(self) -> bool:
+        if not self.implemementations or self.using_parents:
+            # We need to have at least one implementations
+            # or using_parents must be True, otherwise this implement
+            # statement is useless (and incomplete)
+            return False
+
+        return all(self._validate_implementation(implementation) for implementation in self.implemementations)
 
     def __str__(self) -> str:
         entity_path = self.entity.name
@@ -85,13 +113,16 @@ class Implement(ModuleElement):
             # Entity is in a different file
             entity_path = self.entity.full_path_string
 
-        implementation_path = self.implementation.name
-        if self.path_string != self.implementation.path_string:
-            # Implementation is in a different file
-            implementation_path = self.implementation.full_path_string
+        implementation_paths: List[str] = []
+        for implementation in self.implemementations:
+            implementation_path = implementation.name
+            if self.path_string != implementation.path_string:
+                # Implementation is in a different file
+                implementation_path = implementation.full_path_string
+            implementation_paths.append(implementation_path)
 
         if self.using_parents:
-            implementation_path += ", parents"
+            implementation_paths.append("parents")
 
         condition = ""
         if self.condition:
@@ -101,4 +132,4 @@ class Implement(ModuleElement):
         if docstring:
             docstring = f'"""\n{docstring}\n"""'
 
-        return f"implement {entity_path} using {implementation_path}{condition}\n{docstring}"
+        return f"implement {entity_path} using {', '.join(implementation_paths)}{condition}\n{docstring}"
