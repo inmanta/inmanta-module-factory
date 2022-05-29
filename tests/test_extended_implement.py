@@ -143,3 +143,7 @@ def test_no_implementations(project: Project) -> None:
     # Second generation should succeed, we set using_parents to true
     implement.using_parents = True
     module_builder.generate_module(Path(project._test_project_dir) / "libs")
+
+    assert str(implement).strip() == "implement Test using parents"
+
+    project.compile("import test")
