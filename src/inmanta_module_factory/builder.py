@@ -16,6 +16,7 @@
     Contact: code@inmanta.com
     Author: Inmanta
 """
+from collections import defaultdict
 import logging
 import shutil
 from pathlib import Path
@@ -40,7 +41,7 @@ LOGGER = logging.getLogger(__name__)
 class InmantaModuleBuilder:
     def __init__(self, module: Module) -> None:
         self._module = module
-        self._model_files: Dict[str, List[ModuleElement]] = dict()
+        self._model_files: Dict[str, List[ModuleElement]] = defaultdict(list)
         self._plugins: List[Plugin] = list()
 
         # Ensuring the model folder exists
@@ -53,10 +54,7 @@ class InmantaModuleBuilder:
                 f"Got '{module_element.path[0]}', expected '{self._module.name}'"
             )
 
-        if module_element.path_string in self._model_files.keys():
-            self._model_files[module_element.path_string].append(module_element)
-        else:
-            self._model_files.setdefault(module_element.path_string, [module_element])
+        self._model_files[module_element.path_string].append(module_element)
 
     def add_plugin(self, plugin: Plugin) -> None:
         self._plugins.append(plugin)
