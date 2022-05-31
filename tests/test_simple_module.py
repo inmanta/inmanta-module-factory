@@ -38,9 +38,12 @@ from inmanta_module_factory.stats.stats import ModuleFileStats, ModuleStats
 
 
 @pytest.mark.parametrize("generation", ["v1", "v2"])
-def test_empty_module(tmp_path: Path, generation: Literal["v1", "v2"]) -> None:
+def test_empty_module(project: Project, tmp_path: Path, generation: Literal["v1", "v2"]) -> None:
     """
-    This simple test creates an empty module and validates that it is a valid inmanta module
+    This simple test creates an empty module and validates that it is a valid inmanta module.
+    We need the project fixture for its venv "inheritance" capabilities.  This insure than when
+    installing the generated module (and any of its dependencies) in the venv, it won't affect
+    all the other test cases.
     """
     module = Module(name="test")
     module_builder = InmantaModuleBuilder(module, generation=generation)
@@ -65,7 +68,12 @@ def test_empty_module(tmp_path: Path, generation: Literal["v1", "v2"]) -> None:
         assert result.returncode == 0, result.stderr
 
     result = subprocess.run(
-        ["pytest", "tests"],
+        [
+            sys.executable,
+            "-m",
+            "pytest",
+            "tests",
+        ],
         cwd=str(tmp_path / "test"),
         stderr=subprocess.PIPE,
         universal_newlines=True,
