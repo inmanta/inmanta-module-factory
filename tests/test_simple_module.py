@@ -49,6 +49,7 @@ def test_empty_module(project: Project, tmp_path: Path, generation: Literal["v1"
     module_builder = InmantaModuleBuilder(module, generation=generation)
 
     m = module_builder.generate_module(tmp_path)
+    assert m is not None
 
     if generation == "v2":
         result = subprocess.run(

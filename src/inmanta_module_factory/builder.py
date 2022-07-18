@@ -251,13 +251,16 @@ class InmantaModuleBuilder:
         LOGGER.debug(f"Module template created at: {module_path}")
 
         module = inmanta.module.Module.from_path(str(module_path))
+        if module is None:
+            raise RuntimeError("Could not import module from template")
+
         LOGGER.debug(f"Module generation: {module.GENERATION.name}")
         if isinstance(module, inmanta.module.ModuleV2):
             # We mark the module as editable, otherwise get_plugin_dir will return
             # the root of the folder instead of the inmanta_plugins/<module_name> dir
             module._is_editable_install = True
 
-        plugins_folder = Path(module.get_plugin_dir())
+        plugins_folder = Path(module.get_plugin_dir() or "")
         LOGGER.debug(f"Module's plugins folder: {plugins_folder}")
 
         # The following parts of the module are overwritten fully by the generator
