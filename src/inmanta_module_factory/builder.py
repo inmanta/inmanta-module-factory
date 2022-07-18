@@ -23,6 +23,7 @@ from pathlib import Path
 from textwrap import dedent
 from typing import Any, Dict, List, Literal, Optional, Set
 
+import inmanta.module
 from cookiecutter.main import cookiecutter  # type: ignore
 
 from inmanta_module_factory.helpers import utils
@@ -33,7 +34,6 @@ from inmanta_module_factory.inmanta.module_element import (
 )
 from inmanta_module_factory.inmanta.plugin import Plugin
 from inmanta_module_factory.stats.stats import ModuleFileStats, ModuleStats
-import inmanta.module
 
 LOGGER = logging.getLogger(__name__)
 
