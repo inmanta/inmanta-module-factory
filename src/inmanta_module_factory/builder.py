@@ -26,8 +26,7 @@ from typing import Any, Dict, List, Literal, Optional, Set
 import inmanta.module
 from cookiecutter.main import cookiecutter  # type: ignore
 
-from inmanta_module_factory import __version__
-from inmanta_module_factory.helpers import utils
+from inmanta_module_factory.helpers import const, utils
 from inmanta_module_factory.inmanta.module import Module
 from inmanta_module_factory.inmanta.module_element import (
     DummyModuleElement,
@@ -37,13 +36,6 @@ from inmanta_module_factory.inmanta.plugin import Plugin
 from inmanta_module_factory.stats.stats import ModuleFileStats, ModuleStats
 
 LOGGER = logging.getLogger(__name__)
-
-
-GENERATED_FILE_MARKER = "IMF-GENERATED-FILE"
-GENERATED_FILE_FOOTER = f"""
-# This file has been generated using inmanta-module-factory=={__version__}
-# <{GENERATED_FILE_MARKER}/>
-"""
 
 
 class InmantaModuleBuilder:
@@ -134,6 +126,26 @@ class InmantaModuleBuilder:
             sub_modules_stats=sub_modules_stats,
         )
 
+    def generate_model_files(
+        self,
+        model_folder: Path,
+        force: bool = False,
+        copyright_header_template: Optional[str] = None,
+    ) -> None:
+        for file_key in list(self._model_files.keys()):
+            if file_key == self._module.name:
+                continue
+
+            splitted_key = file_key.split("::")
+            parent_path = splitted_key[0]
+            for part in splitted_key[1:]:
+                parent_path += f"::{part}"
+                if parent_path not in self._model_files:
+                    self._model_files[parent_path] = [DummyModuleElement(parent_path.split("::"))]
+
+        for file_key in self._model_files.keys():
+            self.generate_model_file(model_folder, file_key, force, copyright_header_template)
+
     def generate_model_file(
         self,
         model_folder: Path,
@@ -179,7 +191,7 @@ class InmantaModuleBuilder:
         )
 
         if self.allow_watermark:
-            file_content += GENERATED_FILE_FOOTER
+            file_content += const.GENERATED_FILE_FOOTER
 
         file_path.write_text(file_content)
 
@@ -192,10 +204,17 @@ class InmantaModuleBuilder:
 
         file_path = plugins_folder / "__init__.py"
         file_path.parent.mkdir(parents=True, exist_ok=True)
-        if file_path.exists():
+        if file_path.exists() and self._plugins:
             LOGGER.warning(f"Generating a file where a file already exists: {str(file_path)}")
             if not force:
                 raise RuntimeError(f"Generating this file would have overwritten an existing one: {str(file_path)}")
+        elif file_path.exists() and not self._plugins:
+            # A file already exists, but we don't actually need to add any plugin, so we silently skip
+            # this step
+            return file_path
+        else:
+            # No file exists, we can go on
+            pass
 
         imports: Set[str] = set()
         for plugin in self._plugins:
@@ -213,7 +232,7 @@ class InmantaModuleBuilder:
         )
 
         if self.allow_watermark:
-            file_content += GENERATED_FILE_FOOTER
+            file_content += const.GENERATED_FILE_FOOTER
 
         file_path.write_text(file_content)
 
@@ -244,7 +263,7 @@ class InmantaModuleBuilder:
         )
 
         if self.allow_watermark:
-            file_content += GENERATED_FILE_FOOTER
+            file_content += const.GENERATED_FILE_FOOTER
 
         file_path.write_text(file_content)
 
@@ -297,27 +316,37 @@ class InmantaModuleBuilder:
         shutil.rmtree(str(module_path / "tests"))
 
         self.generate_plugin_file(plugins_folder, force, copyright_header_template)
-
-        for file_key in list(self._model_files.keys()):
-            if file_key == self._module.name:
-                continue
-
-            splitted_key = file_key.split("::")
-            parent_path = splitted_key[0]
-            for part in splitted_key[1:]:
-                parent_path += f"::{part}"
-                if parent_path not in self._model_files:
-                    self._model_files[parent_path] = [DummyModuleElement(parent_path.split("::"))]
-
-        for file_key in self._model_files.keys():
-            self.generate_model_file(module_path / "model", file_key, force, copyright_header_template)
-
+        self.generate_model_files(module_path / "model", force, copyright_header_template)
         self.generate_model_test(module_path / "tests", force, copyright_header_template)
 
         if fix_linting:
             utils.fix_module_linting(module)
 
         return module
+
+    def upgrade_module(
+        self,
+        existing_module: inmanta.module.Module,
+        fix_linting: bool = False,
+    ) -> inmanta.module.Module:
+        if self.allow_watermark is False:
+            raise RuntimeError("self.allow_watermark should be set to True to upgrade an existing module.")
+
+        module_path = Path(existing_module.path)
+        utils.remove_watermarked_files(module_path)
+        copyright_header_template = utils.copyright_header_from_module(existing_module)
+
+        plugins_folder = Path(existing_module.get_plugin_dir() or "")
+        LOGGER.debug(f"Module's plugins folder: {plugins_folder}")
+
+        self.generate_plugin_file(plugins_folder, False, copyright_header_template)
+        self.generate_model_files(module_path / "model", False, copyright_header_template)
+        self.generate_model_test(module_path / "tests", False, copyright_header_template)
+
+        if fix_linting:
+            utils.fix_module_linting(existing_module)
+
+        return existing_module
 
     @classmethod
     def from_existing_module(cls, existing_module: inmanta.module.Module) -> "InmantaModuleBuilder":

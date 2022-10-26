@@ -26,7 +26,7 @@ import tempfile
 import inmanta
 import inmanta.module
 
-from inmanta_module_factory.helpers.const import INMANTA_RESERVED_KEYWORDS
+from inmanta_module_factory.helpers import const
 
 LOGGER = logging.getLogger(__name__)
 
@@ -66,7 +66,7 @@ def inmanta_safe_name(input: str) -> str:
         output = f"x_{output}"
 
     # Is it an inmanta keyword?
-    if output in INMANTA_RESERVED_KEYWORDS:
+    if output in const.INMANTA_RESERVED_KEYWORDS:
         output = f"x_{output}"
 
     return output
@@ -123,3 +123,26 @@ def fix_module_linting(existing_module: inmanta.module.Module) -> None:
         LOGGER.debug(stderr)
         if result.returncode != 0:
             raise RuntimeError(f"Failed to fix the linting of the module (return code = {result.returncode}):\n{stderr}")
+
+
+def remove_watermarked_files(directory: pathlib.Path) -> None:
+    """
+    Recursively traverse the directory and remove all files containing the "generated file"
+    watermark.  If an empty folder is found, it is removed as well.
+    """
+    dir_content = list(directory.glob("*"))
+    for file in dir_content:
+        if file.is_dir():
+            remove_watermarked_files(file)
+            if not file.glob("*"):
+                file.rmdir()
+
+            continue
+
+        if not (file.name.endswith(".py") or file.name.endswith(".cf")):
+            # The file is not safe to read and we wouldn't have added
+            # a water mark in there
+            continue
+
+        if const.GENERATED_FILE_MARKER in file.read_text(encoding="utf-8"):
+            file.unlink()
