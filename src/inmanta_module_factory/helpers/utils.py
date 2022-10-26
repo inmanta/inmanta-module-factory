@@ -16,7 +16,11 @@
     Contact: code@inmanta.com
     Author: Inmanta
 """
+import pathlib
 import re
+
+import inmanta
+import inmanta.module
 
 from inmanta_module_factory.helpers.const import INMANTA_RESERVED_KEYWORDS
 
@@ -59,3 +63,22 @@ def inmanta_safe_name(input: str) -> str:
         output = f"x_{output}"
 
     return output
+
+
+def copyright_header_from_module(existing_module: inmanta.module.Module) -> str:
+    """
+    This helper function can help build a template header from an already existing module.
+    So that it is used by the generator when the module is extended for example.
+    """
+    copyright_header_tmpl = None
+    copyright_header_source_file = pathlib.Path(existing_module.path, existing_module.MODEL_DIR, "_init.cf")
+    if not copyright_header_source_file.exists() or not copyright_header_source_file.is_file():
+        raise ValueError(f"The path {copyright_header_source_file} doesn't point to a file.")
+
+    model_root_content = copyright_header_source_file.read_text()
+    docstring_blocks = model_root_content.split('"""')
+    if not docstring_blocks:
+        raise ValueError(f"Failed to extract copyright header from file {copyright_header_source_file}")
+
+    copyright_header_tmpl = '"""' + docstring_blocks[1] + '"""'
+    return copyright_header_tmpl
