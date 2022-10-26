@@ -26,6 +26,7 @@ from typing import Any, Dict, List, Literal, Optional, Set
 import inmanta.module
 from cookiecutter.main import cookiecutter  # type: ignore
 
+from inmanta_module_factory import __version__
 from inmanta_module_factory.helpers import utils
 from inmanta_module_factory.inmanta.module import Module
 from inmanta_module_factory.inmanta.module_element import (
@@ -38,12 +39,26 @@ from inmanta_module_factory.stats.stats import ModuleFileStats, ModuleStats
 LOGGER = logging.getLogger(__name__)
 
 
+GENERATED_FILE_MARKER = "IMF-GENERATED-FILE"
+GENERATED_FILE_FOOTER = f"""
+# This file has been generated using inmanta-module-factory=={__version__}
+# <{GENERATED_FILE_MARKER}/>
+"""
+
+
 class InmantaModuleBuilder:
-    def __init__(self, module: Module, *, generation: Literal["v1", "v2"] = "v1") -> None:
+    def __init__(
+        self,
+        module: Module,
+        *,
+        generation: Literal["v1", "v2"] = "v1",
+        allow_watermark: bool = False,
+    ) -> None:
         self._module = module
         self._model_files: Dict[str, List[ModuleElement]] = defaultdict(list)
         self._plugins: List[Plugin] = list()
         self.generation = generation
+        self.allow_watermark = allow_watermark
 
         # Ensuring the model folder exists
         self.add_module_element(DummyModuleElement([module.name]))
@@ -163,6 +178,9 @@ class InmantaModuleBuilder:
             + "\n".join([str(module_element) for module_element in module_elements])
         )
 
+        if self.allow_watermark:
+            file_content += GENERATED_FILE_FOOTER
+
         file_path.write_text(file_content)
 
         return file_path
@@ -194,6 +212,9 @@ class InmantaModuleBuilder:
             + "\n\n".join([str(plugin) for plugin in self._plugins])
         )
 
+        if self.allow_watermark:
+            file_content += GENERATED_FILE_FOOTER
+
         file_path.write_text(file_content)
 
         return file_path
@@ -222,12 +243,19 @@ class InmantaModuleBuilder:
             )
         )
 
+        if self.allow_watermark:
+            file_content += GENERATED_FILE_FOOTER
+
         file_path.write_text(file_content)
 
         return file_path
 
     def generate_module(
-        self, build_location: Path, force: bool = False, copyright_header_template: Optional[str] = None
+        self,
+        build_location: Path,
+        force: bool = False,
+        copyright_header_template: Optional[str] = None,
+        fix_linting: bool = False,
     ) -> inmanta.module.Module:
         build_location.mkdir(parents=True, exist_ok=True)
         template_path = cookiecutter(
@@ -285,6 +313,9 @@ class InmantaModuleBuilder:
             self.generate_model_file(module_path / "model", file_key, force, copyright_header_template)
 
         self.generate_model_test(module_path / "tests", force, copyright_header_template)
+
+        if fix_linting:
+            utils.fix_module_linting(module)
 
         return module
 

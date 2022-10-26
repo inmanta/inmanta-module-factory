@@ -16,13 +16,20 @@
     Contact: code@inmanta.com
     Author: Inmanta
 """
+import logging
 import pathlib
 import re
+import subprocess
+import sys
+import tempfile
 
 import inmanta
 import inmanta.module
 
 from inmanta_module_factory.helpers.const import INMANTA_RESERVED_KEYWORDS
+
+LOGGER = logging.getLogger(__name__)
+
 
 camel_case_regex = re.compile(r"(?<!^)(?=[A-Z])")
 
@@ -82,3 +89,37 @@ def copyright_header_from_module(existing_module: inmanta.module.Module) -> str:
 
     copyright_header_tmpl = '"""' + docstring_blocks[1] + '"""'
     return copyright_header_tmpl
+
+
+def fix_module_linting(existing_module: inmanta.module.Module) -> None:
+    """
+    Fix the linting of an existing (generated or not) module.
+    """
+    # Setup a virtual env, install dev dependencies and fix module linting
+    with tempfile.TemporaryDirectory() as tmpdir:
+        fix_linting_command = [
+            "bash",
+            "-c",
+            (
+                f"{sys.executable} -m venv {tmpdir}; "
+                f"source {tmpdir}/bin/activate; "
+                "pip install -U pip; "
+                "pip install -r requirements.dev.txt; "
+                f"black tests {existing_module.get_plugin_dir()}; "
+                f"isort tests {existing_module.get_plugin_dir()}; "
+                f"flake8 tests {existing_module.get_plugin_dir()}"
+            ),
+        ]
+        LOGGER.debug(f"Running command {fix_linting_command}")
+        result = subprocess.Popen(
+            args=fix_linting_command,
+            cwd=existing_module.path,
+            stdout=subprocess.PIPE,
+            stderr=subprocess.PIPE,
+            universal_newlines=True,
+        )
+        stdout, stderr = result.communicate()
+        LOGGER.debug(stdout)
+        LOGGER.debug(stderr)
+        if result.returncode != 0:
+            raise RuntimeError(f"Failed to fix the linting of the module (return code = {result.returncode}):\n{stderr}")
