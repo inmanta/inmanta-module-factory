@@ -324,7 +324,7 @@ class InmantaModuleBuilder:
 
         return module
 
-    def upgrade_module(
+    def upgrade_existing_module(
         self,
         existing_module: inmanta.module.Module,
         fix_linting: bool = False,
@@ -333,8 +333,14 @@ class InmantaModuleBuilder:
             raise RuntimeError("self.allow_watermark should be set to True to upgrade an existing module.")
 
         module_path = Path(existing_module.path)
-        utils.remove_watermarked_files(module_path)
         copyright_header_template = utils.copyright_header_from_module(existing_module)
+        utils.remove_watermarked_files(module_path)
+
+        LOGGER.debug(f"Module generation: {existing_module.GENERATION.name}")
+        if isinstance(existing_module, inmanta.module.ModuleV2):
+            # We mark the module as editable, otherwise get_plugin_dir will return
+            # the root of the folder instead of the inmanta_plugins/<module_name> dir
+            existing_module._is_editable_install = True
 
         plugins_folder = Path(existing_module.get_plugin_dir() or "")
         LOGGER.debug(f"Module's plugins folder: {plugins_folder}")
