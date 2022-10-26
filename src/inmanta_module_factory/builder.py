@@ -287,3 +287,17 @@ class InmantaModuleBuilder:
         self.generate_model_test(module_path / "tests", force, copyright_header_template)
 
         return module
+
+    @classmethod
+    def from_existing_module(cls, existing_module: inmanta.module.Module) -> "InmantaModuleBuilder":
+        v1 = existing_module.GENERATION == inmanta.module.ModuleGeneration.V1
+        license = existing_module.metadata.license
+        module_name = existing_module.name
+
+        return InmantaModuleBuilder(
+            module=Module(
+                module_name,
+                license=license,
+            ),
+            generation="v1" if v1 else "v2",
+        )
