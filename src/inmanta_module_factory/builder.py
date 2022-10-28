@@ -126,26 +126,6 @@ class InmantaModuleBuilder:
             sub_modules_stats=sub_modules_stats,
         )
 
-    def generate_model_files(
-        self,
-        model_folder: Path,
-        force: bool = False,
-        copyright_header_template: Optional[str] = None,
-    ) -> None:
-        for file_key in list(self._model_files.keys()):
-            if file_key == self._module.name:
-                continue
-
-            splitted_key = file_key.split("::")
-            parent_path = splitted_key[0]
-            for part in splitted_key[1:]:
-                parent_path += f"::{part}"
-                if parent_path not in self._model_files:
-                    self._model_files[parent_path] = [DummyModuleElement(parent_path.split("::"))]
-
-        for file_key in self._model_files.keys():
-            self.generate_model_file(model_folder, file_key, force, copyright_header_template)
-
     def generate_model_file(
         self,
         model_folder: Path,
@@ -316,8 +296,21 @@ class InmantaModuleBuilder:
         shutil.rmtree(str(module_path / "tests"))
 
         self.generate_plugin_file(plugins_folder, force, copyright_header_template)
-        self.generate_model_files(module_path / "model", force, copyright_header_template)
         self.generate_model_test(module_path / "tests", force, copyright_header_template)
+
+        for file_key in list(self._model_files.keys()):
+            if file_key == self._module.name:
+                continue
+
+            splitted_key = file_key.split("::")
+            parent_path = splitted_key[0]
+            for part in splitted_key[1:]:
+                parent_path += f"::{part}"
+                if parent_path not in self._model_files:
+                    self._model_files[parent_path] = [DummyModuleElement(parent_path.split("::"))]
+
+        for file_key in self._model_files.keys():
+            self.generate_model_file(module_path / "model", file_key, force, copyright_header_template)
 
         if fix_linting:
             utils.fix_module_linting(module)
@@ -346,8 +339,10 @@ class InmantaModuleBuilder:
         LOGGER.debug(f"Module's plugins folder: {plugins_folder}")
 
         self.generate_plugin_file(plugins_folder, False, copyright_header_template)
-        self.generate_model_files(module_path / "model", False, copyright_header_template)
         self.generate_model_test(module_path / "tests", False, copyright_header_template)
+
+        for file_key in self._model_files.keys():
+            self.generate_model_file(module_path / "model", file_key, False, copyright_header_template)
 
         if fix_linting:
             utils.fix_module_linting(existing_module)
@@ -366,4 +361,5 @@ class InmantaModuleBuilder:
                 license=license,
             ),
             generation="v1" if v1 else "v2",
+            allow_watermark=True,
         )
