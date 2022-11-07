@@ -52,9 +52,6 @@ class InmantaModuleBuilder:
         self.generation = generation
         self.allow_watermark = allow_watermark
 
-        # Ensuring the model folder exists
-        self.add_module_element(DummyModuleElement([module.name]))
-
     def add_module_element(self, module_element: ModuleElement) -> None:
         if not module_element.path[0] == self._module.name:
             raise RuntimeError(
