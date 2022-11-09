@@ -115,6 +115,10 @@ class Entity(ModuleElement):
             parents = []
             for parent in self.parents:
                 parent_path = parent.name
+                if parent.full_path_string == "std::Entity":
+                    # This is implicit, not need to specify it
+                    continue
+
                 if self.path_string != parent.path_string:
                     # Parent is in a different file
                     parent_path = parent.full_path_string
