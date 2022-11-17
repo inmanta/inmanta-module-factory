@@ -24,7 +24,7 @@ from inmanta_module_factory.inmanta import (
 )
 
 entity = Entity(name="Entity", path=["std"])
-none = Implementation(name="none", path=["std"], entity=entity)
+none = Implementation(name="none", path=["std"], entity=entity, content="")
 
 resource = Entity(
     name="Resource",
