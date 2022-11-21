@@ -71,7 +71,7 @@ class Entity(ModuleElement):
         return [field for field in self.fields if isinstance(field, entity_relation.EntityRelation)]
 
     def _ordering_key(self) -> str:
-        return self.name
+        return self.name + ".entity"
 
     def _get_derived_imports(self) -> Set[str]:
         imports = set()
