@@ -125,7 +125,8 @@ class Entity(ModuleElement):
 
                 parents.append(parent_path)
 
-            inheritance = " extends " + ", ".join(parents)
+            if parents:
+                inheritance = " extends " + ", ".join(parents)
 
         return f"entity {self.name}{inheritance}:\n"
 
