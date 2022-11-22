@@ -295,6 +295,10 @@ class InmantaModuleBuilder:
         self.generate_plugin_file(plugins_folder, force, copyright_header_template)
         self.generate_model_test(module_path / "tests", force, copyright_header_template)
 
+        if not self._model_files:
+            LOGGER.warning("Empty model for module, adding a default empty _init.cf file")
+            self.add_module_element(DummyModuleElement(path=[self._module.name]))
+
         for file_key in list(self._model_files.keys()):
             if file_key == self._module.name:
                 continue
