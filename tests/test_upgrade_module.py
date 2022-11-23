@@ -246,6 +246,11 @@ def test_plugin(project: Project) -> None:
 
     m = module_builder.generate_module(Path(project._test_project_dir) / "libs")
 
+    # Add a dummy file on the side of the plugins file to be sure the full dir is
+    # not removed in the middle of the tests as it causes strange OSError during
+    # next compile.
+    Path(m.path, "plugins/.dummy-file").touch()
+
     project.compile(
         """
             import test
