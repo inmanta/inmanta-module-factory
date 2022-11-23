@@ -130,11 +130,16 @@ def remove_watermarked_files(directory: pathlib.Path) -> None:
     Recursively traverse the directory and remove all files containing the "generated file"
     watermark.  If an empty folder is found, it is removed as well.
     """
-    dir_content = list(directory.glob("*"))
-    for file in dir_content:
+    for file in directory.glob("*"):
         if file.is_dir():
             remove_watermarked_files(file)
-            if not file.glob("*"):
+
+            try:
+                # Tries to get the first file that is still in the folder
+                # If no file can be found, a StopIteration will be raised
+                # and we know we can delete the full folder.
+                next(file.glob("*"))
+            except StopIteration:
                 file.rmdir()
 
             continue
