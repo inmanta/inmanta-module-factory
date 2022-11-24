@@ -342,6 +342,18 @@ class InmantaModuleBuilder:
         self.generate_plugin_file(plugins_folder, False, copyright_header_template)
         self.generate_model_test(module_path / "tests", False, copyright_header_template)
 
+        for file_key in list(self._model_files.keys()):
+            if file_key == self._module.name:
+                continue
+
+            splitted_key = file_key.split("::")
+            parent_path = splitted_key[0]
+            for part in splitted_key[1:]:
+                parent_path += f"::{part}"
+                real_path = Path(*parent_path.split("::")) / "_init.cf"
+                if parent_path not in self._model_files and not real_path.exists():
+                    self._model_files[parent_path] = [DummyModuleElement(parent_path.split("::"))]
+
         for file_key in self._model_files.keys():
             self.generate_model_file(module_path / "model", file_key, False, copyright_header_template)
 
