@@ -329,7 +329,11 @@ class InmantaModuleBuilder:
 
         module_path = Path(existing_module.path)
         copyright_header_template = utils.copyright_header_from_module(existing_module)
-        utils.remove_watermarked_files(module_path)
+        for module_inner_folder in ["model", "plugins", "inmanta_plugins", "files", "templates", "tests"]:
+            path = module_path / module_inner_folder
+            if not path.exists():
+                continue
+            utils.remove_watermarked_files(path)
 
         LOGGER.debug(f"Module generation: {existing_module.GENERATION.name}")
         if isinstance(existing_module, inmanta.module.ModuleV2):
