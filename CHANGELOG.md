@@ -1,6 +1,10 @@
 # v 2.5.0 (?)
 Changes in this release:
 
+# v 2.4.1 (?)
+Changes in this release:
+ - Fix self-destructing library when running the generator from a module that has its virtual environment in its folder.
+
 # v 2.4.0 (2022-12-05)
 Changes in this release:
  - Update default Inmanta EULA header
