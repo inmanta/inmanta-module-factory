@@ -329,11 +329,6 @@ class InmantaModuleBuilder:
 
         module_path = Path(existing_module.path)
         copyright_header_template = utils.copyright_header_from_module(existing_module)
-        for module_inner_folder in ["model", "plugins", "inmanta_plugins", "files", "templates", "tests"]:
-            path = module_path / module_inner_folder
-            if not path.exists():
-                continue
-            utils.remove_watermarked_files(path)
 
         LOGGER.debug(f"Module generation: {existing_module.GENERATION.name}")
         if isinstance(existing_module, inmanta.module.ModuleV2):
@@ -343,6 +338,13 @@ class InmantaModuleBuilder:
 
         plugins_folder = Path(existing_module.get_plugin_dir() or "")
         LOGGER.debug(f"Module's plugins folder: {plugins_folder}")
+
+        for module_inner_folder in [
+            module_path / "model",
+            plugins_folder,
+            module_path / "tests",
+        ]:
+            utils.remove_watermarked_files(module_inner_folder)
 
         self.generate_plugin_file(plugins_folder, False, copyright_header_template)
         self.generate_model_test(module_path / "tests", False, copyright_header_template)
