@@ -16,7 +16,8 @@
     Contact: code@inmanta.com
     Author: Inmanta
 """
-from inmanta.parser.plyInmantaLex import keyworldlist
+import inmanta.parser.plyInmantaLex
+import inmanta.ast.type
 
 from inmanta_module_factory import __version__
 
@@ -58,7 +59,7 @@ EULA_COPYRIGHT_HEADER_TMPL = '''
     "\n"
 )
 
-INMANTA_RESERVED_KEYWORDS = keyworldlist
+INMANTA_RESERVED_KEYWORDS = inmanta.parser.plyInmantaLex.keyworldlist + list(inmanta.ast.type.TYPES.keys())
 
 
 GENERATED_FILE_MARKER = "-".join(["IMF", "GENERATED", "FILE"])
