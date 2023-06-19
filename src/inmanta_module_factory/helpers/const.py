@@ -16,8 +16,8 @@
     Contact: code@inmanta.com
     Author: Inmanta
 """
-import inmanta.parser.plyInmantaLex
 import inmanta.ast.type
+import inmanta.parser.plyInmantaLex
 
 from inmanta_module_factory import __version__
 
