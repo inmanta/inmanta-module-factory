@@ -34,7 +34,7 @@ LOGGER = logging.getLogger(__name__)
 
 assert inmanta.parser.plyInmantaLex.t_ID.__doc__ is not None, "Invalid lexer specifications"
 """
-If this assertion fails, this is likely a compatibility issue with core, this docstring
+If this assertion fails, this is likely a compatibility issue with inmanta-core, this docstring
 is expected to contain the regular expression that defines what is a valid ID token.  If
 it has been moved, the value can be set directly in the re.Pattern[str] object below.
 """
