@@ -36,15 +36,19 @@ LOGGER = logging.getLogger(__name__)
 INMANTA_ID_TOKEN_EXPR: re.Pattern[str] = re.compile(inmanta.parser.plyInmantaLex.t_ID.__doc__)
 
 
-def validate_id_token(name: str) -> None:
+def validate_id_token(name: str, *, force: bool = False) -> str:
     """
-    Make sure the given name is a valid id token (parser scope)
+    Make sure the given name is a valid id token (parser scope) and returns the valid name
+    or raise an exception if the name is not valid and force is set to false.
 
     https://github.com/inmanta/inmanta-core/blob/c9fb88421a43bc967d4d36401c90d948e8d7171f
     /src/inmanta/parser/plyInmantaLex.py#L100
+
+    :param name: The name to validate, and possibly convert
+    :param force: Whether the name should be converted into the closest
+        correct thing if it is not correct.
     """
-    id_match = INMANTA_ID_TOKEN_EXPR.match(name)
-    if not id_match:
+    if not INMANTA_ID_TOKEN_EXPR.fullmatch(name):
         # Id tokens should match the following expression:
         # https://github.com/inmanta/inmanta-core/blob/808b4e99443d7c5009d7b9489649cbd452444ac3
         # /src/inmanta/parser/plyInmantaLex.py#L101
@@ -52,11 +56,14 @@ def validate_id_token(name: str) -> None:
             f"{repr(name)} is not a valid ID token:"
             f" it doesn't match the expression {INMANTA_ID_TOKEN_EXPR.pattern}"
         )
-    
+
     if name[0].isupper():
         # If the id starts with a capital letter, it is actually a CID token
         # https://github.com/inmanta/inmanta-core/blob/808b4e99443d7c5009d7b9489649cbd452444ac3
         # /src/inmanta/parser/plyInmantaLex.py#L104
+        if force:
+            return validate_id_token(name.capitalize(), force=force)
+
         raise ValueError(
             f"{repr(name)} is not a valid ID token:"
             f" ID tokens should start with a lower case letter"
@@ -71,20 +78,25 @@ def validate_id_token(name: str) -> None:
             " it matches a reserved keyword"
         )
 
+    return name
 
-def validate_entity_name(name: str) -> None:
+
+def validate_entity_name(name: str, *, force: bool = False) -> str:
     """
     Make sure that the given name would be a valid entity name for the parser and the
-    compiler.
+    compiler.  Return the valid name or raise an exception if the name is not valid 
+    and force is set to false.
 
     https://github.com/inmanta/inmanta-core/blob/808b4e99443d7c5009d7b9489649cbd452444ac3
     /src/inmanta/parser/plyInmantaParser.py#L281
     https://github.com/inmanta/inmanta-core/blob/808b4e99443d7c5009d7b9489649cbd452444ac3
     /src/inmanta/ast/statements/define.py#L117
-    """
 
-    id_match = INMANTA_ID_TOKEN_EXPR.match(name)
-    if not id_match:
+    :param name: The name to validate, and possibly convert
+    :param force: Whether the name should be converted into the closest
+        correct thing if it is not correct.
+    """
+    if not INMANTA_ID_TOKEN_EXPR.fullmatch(name):
         # CID tokens should match the following expression:
         # https://github.com/inmanta/inmanta-core/blob/808b4e99443d7c5009d7b9489649cbd452444ac3
         # /src/inmanta/parser/plyInmantaLex.py#L101
@@ -97,6 +109,9 @@ def validate_entity_name(name: str) -> None:
         # CID tokens should start with a capital letter
         # https://github.com/inmanta/inmanta-core/blob/808b4e99443d7c5009d7b9489649cbd452444ac3
         # /src/inmanta/parser/plyInmantaLex.py#L104
+        if force:
+            return validate_entity_name(name[0].lower() + name[1:], force=force)
+
         raise ValueError(
             f"{repr(name)} is not a valid entity name:"
             " entity names should start with a capital letter"
@@ -106,69 +121,126 @@ def validate_entity_name(name: str) -> None:
         # Entity names can not contain hyphens
         # https://github.com/inmanta/inmanta-core/blob/808b4e99443d7c5009d7b9489649cbd452444ac3
         # /src/inmanta/ast/statements/define.py#L135
+        if force:
+            return validate_entity_name(name.replace("-", "_"), force=force)
+
         raise ValueError(
             f"{repr(name)} is not a valid entity name:"
             " entity names can not contain an hyphen"
         )
     
+    return name
+    
 
-def validate_attribute_name(name: str) -> None:
+def validate_attribute_name(name: str, *, force: bool = False) -> str:
     """
     Make sure that the given name would be a valid attribute name for the parser and
-    the compiler.
+    the compiler.  Return the valid name or raise an exception if the name is not valid 
+    and force is set to false.
 
     https://github.com/inmanta/inmanta-core/blob/c9fb88421a43bc967d4d36401c90d948e8d7171f
     /src/inmanta/parser/plyInmantaParser.py#L371
     https://github.com/inmanta/inmanta-core/blob/c9fb88421a43bc967d4d36401c90d948e8d7171f
     /src/inmanta/ast/statements/define.py#L94
+
+    :param name: The name to validate, and possibly convert
+    :param force: Whether the name should be converted into the closest
+        correct thing if it is not correct.
     """
+
+    # Overwrite the logic of validate_id_token to support a meaningful force
+    # operation
+    if name in inmanta.parser.plyInmantaLex.reserved:
+        # Reserved keywords generate their own token, they can't be used as id
+        # https://github.com/inmanta/inmanta-core/blob/808b4e99443d7c5009d7b9489649cbd452444ac3
+        # /src/inmanta/parser/plyInmantaLex.py#L102
+        if force:
+            return validate_attribute_name(name + "_", force=True)
+
+        raise ValueError(
+            f"{repr(name)} is not a valid attribute name:"
+            " it matches a reserved keyword"
+        )
+
     # An attribute name should be a valid id token
-    validate_id_token(name)
+    name = validate_id_token(name, force=force)
 
     if "-" in name:
         # Attribute names can not contain hyphens
         # https://github.com/inmanta/inmanta-core/blob/808b4e99443d7c5009d7b9489649cbd452444ac3
         # /src/inmanta/ast/statements/define.py#L107
+        if force:
+            return validate_attribute_name(name.replace("-", "_"), force=force)
+
         raise ValueError(
-            f"{repr(name)} is not a valid entity name:"
+            f"{repr(name)} is not a valid attribute name:"
             " entity names can not contain an hyphen"
         )
     
+    return name
+    
 
-def validate_relation_name(name: str) -> None:
+def validate_relation_name(name: str, *, force: bool = False) -> str:
     """
     Make sure that the given name would be a valid relation name for the parser and the
-    compiler.
+    compiler.  Return the valid name or raise an exception if the name is not valid 
+    and force is set to false.
 
     https://github.com/inmanta/inmanta-core/blob/c9fb88421a43bc967d4d36401c90d948e8d7171f
     /src/inmanta/parser/plyInmantaParser.py#L570
     https://github.com/inmanta/inmanta-core/blob/c9fb88421a43bc967d4d36401c90d948e8d7171f
     /src/inmanta/ast/statements/define.py#L478
+
+    :param name: The name to validate, and possibly convert
+    :param force: Whether the name should be converted into the closest
+        correct thing if it is not correct.
     """
     # The validation is actually the same as for the attribute
-    validate_attribute_name(name)
+    return validate_attribute_name(name, force=force)
 
 
-def validate_typedef_name(name: str) -> None:
+def validate_typedef_name(name: str, *, force: bool = False) -> str:
     """
     Make sure that the given name would be a valid type definition name for the parser
     and the compiler.  We can obviously not check here that no other type with the same
-    name is defined in the same scope.
+    name is defined in the same scope.  Return the valid name or raise an exception if 
+    the name is not valid and force is set to false.
 
     https://github.com/inmanta/inmanta-core/blob/c9fb88421a43bc967d4d36401c90d948e8d7171f
     /src/inmanta/parser/plyInmantaParser.py#L629
     https://github.com/inmanta/inmanta-core/blob/c9fb88421a43bc967d4d36401c90d948e8d7171f
     /src/inmanta/ast/statements/define.py#L398
+
+    :param name: The name to validate, and possibly convert
+    :param force: Whether the name should be converted into the closest
+        correct thing if it is not correct.
     """
+    # Overwrite the logic of validate_id_token to support a meaningful force
+    # operation
+    if name in inmanta.parser.plyInmantaLex.reserved:
+        # Reserved keywords generate their own token, they can't be used as id
+        # https://github.com/inmanta/inmanta-core/blob/808b4e99443d7c5009d7b9489649cbd452444ac3
+        # /src/inmanta/parser/plyInmantaLex.py#L102
+        if force:
+            return validate_typedef_name(name + "_t", force=True)
+
+        raise ValueError(
+            f"{repr(name)} is not a valid typedef name:"
+            " it matches a reserved keyword"
+        )
+
     # A typedef name should be a valid id token
-    validate_id_token(name)
+    name = validate_id_token(name, force=force)
 
     if name in inmanta.ast.type.TYPES:
         # Typedef names can not match any of the existing primitive types
         # https://github.com/inmanta/inmanta-core/blob/c9fb88421a43bc967d4d36401c90d948e8d7171f
         # /src/inmanta/ast/statements/define.py#L421
+        if force:
+            return validate_typedef_name(name + "_t", force=force)
+
         raise ValueError(
-            f"{repr(name)} is not a valid typedefinition name:"
+            f"{repr(name)} is not a valid typdef name:"
             " it matches the name of an existing primitive type"
         )
 
@@ -176,33 +248,48 @@ def validate_typedef_name(name: str) -> None:
         # Typedef names can not contain hyphens
         # https://github.com/inmanta/inmanta-core/blob/c9fb88421a43bc967d4d36401c90d948e8d7171f
         # /src/inmanta/ast/statements/define.py#L423
+        if force:
+            return validate_typedef_name(name.replace("-", "_"), force=force)
+
         raise ValueError(
-            f"{repr(name)} is not a valid entity name:"
+            f"{repr(name)} is not a valid tyepdef name:"
             " entity names can not contain an hyphen"
         )
     
+    return name
+    
 
-def validate_namespace_name(name: str) -> None:
+def validate_namespace_name(name: str, *, force: bool = False) -> str:
     """
     Make sure that the given name would be a valid namespace name for the parser and
-    the compiler.
+    the compiler.  Return the valid name or raise an exception if the name is not valid 
+    and force is set to false.
 
     https://github.com/inmanta/inmanta-core/blob/c9fb88421a43bc967d4d36401c90d948e8d7171f
     /src/inmanta/parser/plyInmantaParser.py#L1269
     https://github.com/inmanta/inmanta-core/blob/c9fb88421a43bc967d4d36401c90d948e8d7171f
     /src/inmanta/ast/statements/define.py#L649
+
+    :param name: The name to validate, and possibly convert
+    :param force: Whether the name should be converted into the closest
+        correct thing if it is not correct.
     """
     # A namespace name should be a valid id token
-    validate_id_token(name)
+    name = validate_id_token(name)
 
     if "-" in name:
         # Namespace names can not contain hyphens
         # https://github.com/inmanta/inmanta-core/blob/c9fb88421a43bc967d4d36401c90d948e8d7171f
         # /src/inmanta/ast/statements/define.py#L653
+        if force:
+            return validate_namespace_name(name.replace("-", "_"), force=force)
+
         raise ValueError(
-            f"{repr(name)} is not a valid entity name:"
+            f"{repr(name)} is not a valid namespace name:"
             " entity names can not contain an hyphen"
         )
+    
+    return name
 
 
 camel_case_regex = re.compile(r"(?<!^)(?=[A-Z])")
@@ -220,42 +307,6 @@ def inmanta_entity_name(input: str) -> str:
     Convert any string in a more conventional entity name.
     """
     return "".join([part.capitalize() for part in inmanta_safe_name(input).split("_")])
-
-
-def inmanta_entity_name(input: str) -> str:
-    """
-    Entity names must start with an upper case character and can consist of the characters: a-zA-Z_0-9-
-    """
-
-
-
-def inmanta_safe_type_name(input: str) -> str:
-    output = input.replace("-", "_", -1).replace(".", "_", -1)
-    if output in const.INMANTA_RESERVED_KEYWORDS:
-        # If the input is a reserved keyword, we add a suffix to it
-        return f"{output}_t"
-    
-    with contextlib.suppress(ValueError):
-        # If the input starts with a number, we add a prefix to it
-        int(output[0])
-        return f"x_{output}"
-    
-    return output
-    
-
-def inmanta_safe_attribute_name(input: str) -> str:
-    output = input.replace("-", "_", -1).replace(".", "_", -1)
-
-    if output in const.INMANTA_RESERVED_KEYWORDS:
-        # If the input is a resvered keyword, we add a suffix to it
-        return f"{output}_"
-    
-    with contextlib.suppress(ValueError):
-        # If the input starts with a number, we add a prefix to it
-        int(output[0])
-        return f"x_{output}"
-    
-    return output
 
 
 def inmanta_safe_name(input: str) -> str:
