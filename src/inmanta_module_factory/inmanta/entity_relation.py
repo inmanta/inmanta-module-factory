@@ -18,6 +18,7 @@
 """
 from typing import List, Optional, Set, Tuple
 
+from inmanta_module_factory.helpers import utils
 from inmanta_module_factory.inmanta import entity as inmanta_entity
 from inmanta_module_factory.inmanta import entity_field
 from inmanta_module_factory.inmanta.module_element import ModuleElement
@@ -42,6 +43,10 @@ class EntityRelation(entity_field.EntityField, ModuleElement):
         :param peer: The peer relation, which goes on the other end of "--"
         :param entity: The entity this relations belongs to
         """
+        if name != "":
+            # If the name is empty, we can accept it empty, it means we don't have a
+            # bi-directional relation.
+            name = utils.validate_relation_name(name)
         entity_field.EntityField.__init__(self, name, entity)
         ModuleElement.__init__(self, name, path, description)
         self._peer = peer

@@ -18,6 +18,7 @@
 """
 from typing import Optional
 
+from inmanta_module_factory.helpers import utils
 from inmanta_module_factory.inmanta import entity as inmanta_entity
 from inmanta_module_factory.inmanta import entity_field
 from inmanta_module_factory.inmanta.types import InmantaType
@@ -41,7 +42,11 @@ class Attribute(entity_field.EntityField):
         :param description: A description of the attribute to add in the docstring
         :param entity: The entity this attribute is a part of
         """
-        entity_field.EntityField.__init__(self, name, entity)
+        entity_field.EntityField.__init__(
+            self,
+            utils.validate_attribute_name(name),
+            entity,
+        )
         self.inmanta_type = inmanta_type
         self.optional = optional
         self.default = default

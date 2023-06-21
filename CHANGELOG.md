@@ -1,7 +1,7 @@
 # v 2.5.0 (?)
 Changes in this release:
  - Fix self-destructing library when running the generator from a module that has its virtual environment in its folder.
- - Extend the list of inmanta reserved keywords with the primitive types (#491).
+ - Actively check that type and attribute definitions have valid names (with respect to the compiler requirements.)
 
 # v 2.4.0 (2022-12-05)
 Changes in this release:
