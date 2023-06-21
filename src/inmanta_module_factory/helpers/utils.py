@@ -32,7 +32,14 @@ from inmanta_module_factory.helpers import const
 
 LOGGER = logging.getLogger(__name__)
 
-INMANTA_ID_TOKEN_EXPR: re.Pattern[str] = re.compile(inmanta.parser.plyInmantaLex.t_ID.__doc__)
+assert inmanta.parser.plyInmantaLex.t_ID.__doc__ is not None, "Invalid lexer specifications"
+"""
+If this assertion fails, this is likely a compatibility issue with core, this docstring
+is expected to contain the regular expression that defines what is a valid ID token.  If
+it has been moved, the value can be set directly in the re.Pattern[str] object below.
+"""
+
+INMANTA_ID_TOKEN_EXPR = re.compile(inmanta.parser.plyInmantaLex.t_ID.__doc__)
 
 
 def validate_id_token(name: str, *, force: bool = False) -> str:
