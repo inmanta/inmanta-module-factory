@@ -43,7 +43,10 @@ class EntityRelation(entity_field.EntityField, ModuleElement):
         :param peer: The peer relation, which goes on the other end of "--"
         :param entity: The entity this relations belongs to
         """
-        name = utils.validate_relation_name(name)
+        if name != "":
+            # If the name is empty, we can accept it empty, it means we don't have a
+            # bi-directional relation.
+            name = utils.validate_relation_name(name)
         entity_field.EntityField.__init__(self, name, entity)
         ModuleElement.__init__(self, name, path, description)
         self._peer = peer
