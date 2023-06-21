@@ -59,7 +59,7 @@ EULA_COPYRIGHT_HEADER_TMPL = '''
     "\n"
 )
 
-INMANTA_RESERVED_KEYWORDS = inmanta.parser.plyInmantaLex.keyworldlist + list(inmanta.ast.type.TYPES.keys())
+INMANTA_RESERVED_KEYWORDS = inmanta.parser.plyInmantaLex.keyworldlist
 
 
 GENERATED_FILE_MARKER = "-".join(["IMF", "GENERATED", "FILE"])
