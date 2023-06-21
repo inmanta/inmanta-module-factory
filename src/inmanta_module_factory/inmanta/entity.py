@@ -19,6 +19,7 @@
 from textwrap import indent
 from typing import List, Optional, Sequence, Set
 
+from inmanta_module_factory.helpers import utils
 from inmanta_module_factory.helpers.const import INDENT_PREFIX
 from inmanta_module_factory.inmanta import attribute, entity_field, entity_relation
 from inmanta_module_factory.inmanta.module_element import ModuleElement
@@ -43,7 +44,7 @@ class Entity(ModuleElement):
         :param parents: A list of all the entities this one inherit from
         :param description: A description of this entity, to be added in its docstring
         """
-        super().__init__(name, path, description)
+        super().__init__(utils.validate_entity_name(name), path, description)
         self.fields = {field for field in (fields or [])}
         for field in self.fields:
             field.attach_entity(self)

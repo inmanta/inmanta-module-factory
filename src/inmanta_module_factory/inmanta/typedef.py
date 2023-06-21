@@ -18,6 +18,7 @@
 """
 from typing import List, Optional, Set
 
+from inmanta_module_factory.helpers import utils
 from inmanta_module_factory.inmanta.module_element import ModuleElement
 from inmanta_module_factory.inmanta.types import InmantaBaseType
 
@@ -43,7 +44,7 @@ class TypeDef(ModuleElement, InmantaBaseType):
         :param constraint: The constraint to add to this typedef
         :param description: Some explanation about what this constraint does
         """
-        super().__init__(name, path, description)
+        super().__init__(utils.validate_typedef_name(name), path, description)
         self.base_type = base_type
         self.constraint = constraint
 
