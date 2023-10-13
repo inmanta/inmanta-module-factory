@@ -12,7 +12,7 @@ authors = [
 ]
 dependencies = [
 	"PyYAML~=6.0",
-	"inmanta-core>=7.0.1,<10.0.0",
+	"inmanta-core>=7.0.1,<11.0.0",
 	"cookiecutter>=1.7.3,<3.0.0",
 ]
 
