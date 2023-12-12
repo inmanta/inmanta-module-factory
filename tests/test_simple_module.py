@@ -56,8 +56,7 @@ def test_empty_module(project: Project, tmp_path: Path, generation: Literal["v1"
             [
                 sys.executable,
                 "-m",
-                "inmanta.app",
-                "module",
+                "pip",
                 "install",
                 "-e",
                 m.path,
